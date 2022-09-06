@@ -34,6 +34,7 @@ class ParserTypeEnum(Flag):
     MATHJAX = 256
     MATHML = 512
     MACROMATHJAX = 1024
+    GLSL = 2048
 ## TODO: Q: Do we want to store lists or sets instead of using bitwise enum functionality?
 ParserTypeEnumDefaults = ParserTypeEnum.LATEX | ParserTypeEnum.NUMPY | ParserTypeEnum.EIGEN | ParserTypeEnum.MATLAB
 
