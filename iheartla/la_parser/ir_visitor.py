@@ -593,7 +593,7 @@ class IRVisitor(object):
         return CodeNodeInfo("({}/{})".format(node.numerator, node.denominator))
 
     def visit_integer(self, node, **kwargs):
-        content = str(node.value)
+        content = str(node.value)+'.0'
         return CodeNodeInfo(content)
 
     ####################################################
@@ -668,7 +668,7 @@ class IRVisitor(object):
         return name
 
     def convert_unicode(self, name):
-        if '`' not in name and self.parse_type != ParserTypeEnum.MATLAB:
+        if '`' not in name and not (self.parse_type == ParserTypeEnum.MATLAB or self.parse_type == ParserTypeEnum.GLSL):
             return name
         remove_list = ['`$', '$`', '`', '(', ')', '{', '}', '\\', '-']
         for rm in remove_list:
@@ -676,11 +676,11 @@ class IRVisitor(object):
         new_list = []
         pre_unicode = False
         for e in name:
-            if self.parse_type == ParserTypeEnum.NUMPY or self.parse_type == ParserTypeEnum.MATLAB:
+            if self.parse_type == ParserTypeEnum.NUMPY or self.parse_type == ParserTypeEnum.MATLAB or self.parse_type == ParserTypeEnum.GLSL:
                 # make sure identifier is valid in numpy
                 if e.isnumeric() and e in self.uni_num_dict:
                     e = self.uni_num_dict[e]
-            if ((self.parse_type != ParserTypeEnum.MATLAB or e.isascii()) and e.isalnum()) or e == '_':
+            if ((not (self.parse_type == ParserTypeEnum.MATLAB or self.parse_type == ParserTypeEnum.GLSL) or e.isascii()) and e.isalnum()) or e == '_':
                 if pre_unicode:
                     new_list.append('_')
                     pre_unicode = False
@@ -688,7 +688,7 @@ class IRVisitor(object):
             elif e.isspace():
                 new_list.append('')
             else:
-                if self.parse_type == ParserTypeEnum.MATLAB and e in self.common_symbol_dict:
+                if (self.parse_type == ParserTypeEnum.MATLAB or self.parse_type == ParserTypeEnum.GLSL) and e in self.common_symbol_dict:
                     new_list.append(self.common_symbol_dict[e])
                 else:
                     try:
@@ -727,7 +727,7 @@ class IRVisitor(object):
         # in `x(φ)` then this leads to clashes, hence the awkward sort.
         ids_list.sort(key=len,reverse=True)
         for special in ids_list:
-            if '`' not in special and self.parse_type != ParserTypeEnum.MATLAB:
+            if '`' not in special and not (self.parse_type == ParserTypeEnum.MATLAB or self.parse_type == ParserTypeEnum.GLSL):
                 continue
             # don't convert numbers...
             if special.isnumeric():
@@ -736,7 +736,7 @@ class IRVisitor(object):
             new_str = new_str.replace('-', '_')
             if new_str != special:
                 while new_str in names_dict or new_str in self.symtable.keys() or self.is_keyword(new_str):
-                    if self.parse_type == ParserTypeEnum.MATLAB:
+                    if self.parse_type == ParserTypeEnum.MATLAB or ParserTypeEnum.GLSL:
                         new_str = new_str + '_'
                     else:
                         new_str = '_' + new_str

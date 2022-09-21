@@ -1,6 +1,7 @@
 from .codegen import *
 from .type_walker import *
 
+MAX_ARR_LEN = 100
 
 class CodeGenGLSL(CodeGen):
     def __init__(self):
@@ -8,7 +9,7 @@ class CodeGenGLSL(CodeGen):
 
     def init_type(self, type_walker, func_name):
         super().init_type(type_walker, func_name)
-        self.pre_str = '''#include <Eigen/Core>\n#include <Eigen/QR>\n#include <Eigen/Dense>\n#include <Eigen/Sparse>\n#include <iostream>\n#include <set>\n'''
+        self.pre_str = ''''''
         self.post_str = ''''''
         self.ret = 'ret'
         if self.unofficial_method:
@@ -54,7 +55,7 @@ class CodeGenGLSL(CodeGen):
     def get_ctype(self, la_type):
         type_str = ""
         if la_type.is_sequence():
-            type_str = "std::vector<{}>".format(self.get_ctype(la_type.element_type))
+            type_str = "{}[{}]".format(self.get_ctype(la_type.element_type), MAX_ARR_LEN)
         elif la_type.is_matrix():
             if la_type.sparse:
                 if la_type.is_dim_constant():
@@ -76,9 +77,9 @@ class CodeGenGLSL(CodeGen):
                 else:
                     if la_type.is_dim_constant():
                         if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
-                            type_str = "Eigen::Matrix<int, {}, {}>".format(la_type.rows, la_type.cols)
+                            type_str = "imat{}x{}".format(la_type.cols, la_type.rows)
                         else:
-                            type_str = "Eigen::Matrix<double, {}, {}>".format(la_type.rows, la_type.cols)
+                            type_str = "mat{}x{}".format(la_type.cols, la_type.rows)
                     else:
                         if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
                             type_str = "Eigen::MatrixXi"
@@ -93,9 +94,9 @@ class CodeGenGLSL(CodeGen):
             else:
                 if la_type.is_dim_constant():
                     if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
-                        type_str = "Eigen::Matrix<int, {}, 1>".format(la_type.rows)
+                        type_str = "ivec{}".format(la_type.rows)
                     else:
-                        type_str = "Eigen::Matrix<double, {}, 1>".format(la_type.rows)
+                        type_str = "vec{}".format(la_type.rows)
                 else:
                     if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
                         type_str = "Eigen::VectorXi"
@@ -105,7 +106,7 @@ class CodeGenGLSL(CodeGen):
             if la_type.is_scalar() and la_type.is_int:
                 type_str = "int"
             else:
-                type_str = "double"
+                type_str = "float"
         elif la_type.is_set():
             type_str = "std::set<{} >".format(self.get_set_item_str(la_type))
         elif la_type.is_function():
@@ -305,7 +306,9 @@ class CodeGenGLSL(CodeGen):
         test_par_list = []
         for parameter in self.parameters:
             main_declaration.append("    {} {};".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
-            par_des_list.append("const {} & {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
+            par_des_list.append("{} {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
+            if parameter in dim_defined_dict and dim_defined_dict[parameter] == 0:
+                par_des_list.append("int {}".format(self.get_sym_type(parameter).size))
             test_par_list.append("{} & {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
             if self.get_sym_type(parameter).desc:
                 # show_doc = True
@@ -321,8 +324,7 @@ class CodeGenGLSL(CodeGen):
                     if data_type.is_scalar() and data_type.is_int:
                         integer_type = True
                 if not (parameter in dim_defined_dict and dim_defined_dict[parameter] == 0):
-                    type_checks.append(
-                        '    assert( {}.size() == {} );'.format(parameter, self.get_sym_type(parameter).size))
+                    pass
                 if ele_type.is_matrix():
                     if not ele_type.is_dim_constant() and not ele_type.is_dynamic():
                         type_checks.append('    for( const auto& el : {} ) {{'.format(parameter))
@@ -462,7 +464,7 @@ class CodeGenGLSL(CodeGen):
                     test_content.append("    const int {} = rand()%{};".format(key, rand_int_max))
                 if self.get_cur_param_data().symtable[target].is_sequence():
                     if target_dict[target] == 0:
-                        dim_content += "    const long {} = {}.size();\n".format(key, target)
+                        pass
                     elif target_dict[target] == 1:
                         dim_content += "    const long {} = {}[0].rows();\n".format(key, target)
                     elif target_dict[target] == 2:
@@ -683,7 +685,7 @@ class CodeGenGLSL(CodeGen):
                                                                                    assign_id_type.cols))
         elif assign_id_type.is_vector():
             content.append(
-                "Eigen::MatrixXd {} = Eigen::MatrixXd::Zero({}, 1);\n".format(assign_id, assign_id_type.rows))
+                "vec{} {} = vec{}(0.0);\n".format(assign_id_type.rows, assign_id, assign_id_type.rows))
         elif assign_id_type.is_sequence():
             ele_type = assign_id_type.element_type
             content.append(
@@ -724,7 +726,7 @@ class CodeGenGLSL(CodeGen):
             sym_list = node.sym_dict[target_var[0]]
             sub_index = sym_list.index(sub)
             if sub_index == 0:
-                size_str = "{}.size()".format(self.convert_bound_symbol(target_var[0]))
+                size_str = "{}".format(self.get_sym_type(target_var[0]).size)
             elif sub_index == 1:
                 if self.get_sym_type(target_var[0]).element_type.is_dynamic_row():
                     size_str = "{}.at({}-1).rows()".format(self.convert_bound_symbol(target_var[0]), sym_list[0])
@@ -828,7 +830,7 @@ class CodeGenGLSL(CodeGen):
                     content = "({}).array().count()".format(value)
                 else:
                     if node.sub is None:
-                        content = "({}).lpNorm<{}>()".format(value, 2)
+                        content = "length({})".format(value)
                     else:
                         content = "({}).lpNorm<{}>()".format(value, node.sub)
             elif node.norm_type == NormType.NormMax:
@@ -1312,7 +1314,7 @@ class CodeGenGLSL(CodeGen):
                     # use [] instead of (): vector-like data structure
                     content = "{}.at({})[{}]".format(main_info.content, main_index_content, row_content)
             else:
-                content = "{}.at({})".format(main_info.content, main_index_content)
+                content = "{}[{}]".format(main_info.content, main_index_content)
         return CodeNodeInfo(content)
 
     def visit_seq_dim_index(self, node, **kwargs):
@@ -1337,7 +1339,7 @@ class CodeGenGLSL(CodeGen):
     def visit_div(self, node, **kwargs):
         left_info = self.visit(node.left, **kwargs)
         right_info = self.visit(node.right, **kwargs)
-        left_info.content = "{} / double({})".format(left_info.content, right_info.content)
+        left_info.content = "{} / {}".format(left_info.content, right_info.content)
         left_info.pre_list += right_info.pre_list
         return left_info
 
@@ -1472,7 +1474,6 @@ class CodeGenGLSL(CodeGen):
                         # definition
                         if self.get_sym_type(sequence).is_sequence():
                             right_exp += "    {} = {}".format(left_info.content, right_info.content)
-                            content += "    {}.resize({});\n".format(sequence, self.get_sym_type(sequence).size)
                             content += "    for( int {}=1; {}<={}; {}++){{\n".format(left_subs[0], left_subs[0],
                                                                                      self.get_sym_type(sequence).size,
                                                                                      left_subs[0])
@@ -1779,7 +1780,7 @@ class CodeGenGLSL(CodeGen):
     def visit_hadamard_product(self, node, **kwargs):
         left_info = self.visit(node.left, **kwargs)
         right_info = self.visit(node.right, **kwargs)
-        return CodeNodeInfo("({}).cwiseProduct({})".format(left_info.content, right_info.content),
+        return CodeNodeInfo("{} * {}".format(left_info.content, right_info.content),
                             pre_list=left_info.pre_list + right_info.pre_list)
 
     def visit_cross_product(self, node, **kwargs):
@@ -1825,7 +1826,7 @@ class CodeGenGLSL(CodeGen):
     def visit_dot_product(self, node, **kwargs):
         left_info = self.visit(node.left, **kwargs)
         right_info = self.visit(node.right, **kwargs)
-        return CodeNodeInfo("({}).dot({})".format(left_info.content, right_info.content),
+        return CodeNodeInfo("dot({}, {})".format(left_info.content, right_info.content),
                             pre_list=left_info.pre_list + right_info.pre_list)
 
     def visit_math_func(self, node, **kwargs):
