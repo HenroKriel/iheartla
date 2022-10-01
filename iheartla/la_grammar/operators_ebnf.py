@@ -75,6 +75,10 @@ optimize_operator::Optimize
     (min:MIN|max:MAX|amin:ARGMIN|amax:ARGMAX) '_(' {hspace} defs+:where_condition_terse {{hspace} ',' {hspace} defs+:where_condition_terse} {hspace}
     ')' {hspace} exp:expression 
     {{{hspace} {separator} {hspace}} SUBJECT_TO {{hspace} {separator} {hspace}} cond:multi_cond}
+
+max_operator::Max
+    =
+    MAX '('  {hspace} left:expression { {hspace} ','  {hspace} right:expression  }+ ')'
     ;
 
 multi_cond::MultiCond

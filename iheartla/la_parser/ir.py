@@ -56,6 +56,7 @@ class IRNodeType(Enum):
     DotProduct = 220
     Squareroot = 221
     PseudoInverse = 222
+    Max = 223
     # matrix
     Matrix = 300
     MatrixRows = 301
@@ -534,6 +535,23 @@ class AddSubNode(ExprNode):
         sub_node = SubNode(self.left, self.right)
         sub_node.set_parent(self.parent())
         return [add_node, sub_node]
+
+    def get_child(self, node_type):
+        if self.left.is_node(node_type):
+            child_node = self.left
+        elif self.right.is_node(node_type):
+            child_node = self.right
+        else:
+            child_node = self.left.get_child(node_type)
+            if child_node is None:
+                child_node = self.right.get_child(node_type)
+        return child_node
+
+class MaxNode(ExprNode):
+    def __init__(self, left=None, right=None, parse_info=None, raw_text=None):
+        super().__init__(IRNodeType.Max, parse_info=parse_info, raw_text=raw_text)
+        self.left = left
+        self.right = right
 
     def get_child(self, node_type):
         if self.left.is_node(node_type):

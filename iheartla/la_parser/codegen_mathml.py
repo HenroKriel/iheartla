@@ -755,3 +755,6 @@ class CodeGenMathML(CodeGen):
         elif node.func_type == MathFuncType.MathFuncInv:
             content = 'inv'
         return "{}\\left( {} \\right)".format(content, param_info)
+
+    def visit_max(self, node, **kwargs):
+        raise NotImplementedError

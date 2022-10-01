@@ -165,6 +165,7 @@ factor::Factor
     =
     op:operations
     | sub:subexpression
+    | sub:max_operator
     | nm:number_matrix
     | id0:identifier
     | num:number

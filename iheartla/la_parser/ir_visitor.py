@@ -342,6 +342,7 @@ class IRVisitor(object):
             IRNodeType.CrossProduct: "visit_cross_product",
             IRNodeType.KroneckerProduct: "visit_kronecker_product",
             IRNodeType.DotProduct: "visit_dot_product",
+            IRNodeType.Max: "visit_max",
             # matrix
             IRNodeType.Matrix: "visit_matrix",
             IRNodeType.MatrixRows: "visit_matrix_rows",

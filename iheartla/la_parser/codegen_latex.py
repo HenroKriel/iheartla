@@ -828,3 +828,6 @@ class CodeGenLatex(CodeGen):
         elif node.func_type == MathFuncType.MathFuncInv:
             content = ' \mathop{\\text{inv}}'
         return "{}\\left( {} \\right)".format(content, param_info)
+
+    def visit_max(self, node, **kwargs):
+        return "max({}, {})".format(self.visit(node.left, **kwargs), self.visit(node.right, **kwargs))

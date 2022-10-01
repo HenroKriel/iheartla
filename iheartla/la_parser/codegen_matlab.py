@@ -1723,4 +1723,11 @@ class CodeGenMatlab(CodeGen):
             content = 'exp(1)'
         return CodeNodeInfo(content)
 
+    def visit_max(self, node, **kwargs):
+        left_info = self.visit(node.left, **kwargs)
+        right_info = self.visit(node.right, **kwargs)
+        left_info.content = "max([{}, {}])".format(left_info.content, right_info.content)
+        left_info.pre_list += right_info.pre_list
+        return left_info
+
     ###################################################################
