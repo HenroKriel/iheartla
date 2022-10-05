@@ -149,7 +149,6 @@ local_func::LocalFunc
 right_hand_side
     =
     | expression
-    | optimize_operator
     | multi_cond_expr
     ;
 

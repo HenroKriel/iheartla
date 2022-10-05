@@ -69,12 +69,13 @@ sum_operator::Summation
     | SUM '_(' {hspace} enum+:identifier_alone {{hspace} ',' {hspace} enum+:identifier_alone} {hspace} IN {hspace} range:(function_operator | identifier_alone) {hspace} ')' {hspace}+ exp:term
     ;
 
-optimize_operator::Optimize
-    = 
-    {'with' {hspace} 'initial' {hspace} init+:statement {{hspace} ';' {hspace} init+:statement} {hspace} '\n'}
-    (min:MIN|max:MAX|amin:ARGMIN|amax:ARGMAX) '_(' {hspace} defs+:where_condition_terse {{hspace} ',' {hspace} defs+:where_condition_terse} {hspace}
-    ')' {hspace} exp:expression 
-    {{{hspace} {separator} {hspace}} SUBJECT_TO {{hspace} {separator} {hspace}} cond:multi_cond}
+# optimize_operator::Optimize
+#    = 
+#    {'with' {hspace} 'initial' {hspace} init+:statement {{hspace} ';' {hspace} init+:statement} {hspace} '\n'}
+#    (min:MIN|max:MAX|amin:ARGMIN|amax:ARGMAX) '_(' {hspace} defs+:where_condition_terse {{hspace} ',' {hspace} defs+:where_condition_terse} {hspace}
+#    ')' {hspace} exp:expression 
+#    {{{hspace} {separator} {hspace}} SUBJECT_TO {{hspace} {separator} {hspace}} cond:multi_cond}
+#    ;
 
 max_operator::Max
     =
