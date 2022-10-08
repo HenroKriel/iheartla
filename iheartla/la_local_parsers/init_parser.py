@@ -863,128 +863,61 @@ class grammarinitParser(Parser):
             ['enum']
         )
 
-    @tatsumasu('Optimize')
-    def _optimize_operator_(self):  # noqa
+    @tatsumasu('Max')
+    def _max_operator_(self):  # noqa
+        self._MAX_()
+        self._token('(')
 
         def block0():
-            self._token('with')
+            self._hspace_()
+        self._closure(block0)
+        self._expression_()
+        self.name_last_node('left')
+        self._max_list_()
+        self.name_last_node('rest')
 
-            def block1():
-                self._hspace_()
-            self._closure(block1)
-            self._token('initial')
+        def block3():
+            self._hspace_()
+        self._closure(block3)
+        self._token(')')
+        self.ast._define(
+            ['left', 'rest'],
+            []
+        )
 
-            def block2():
-                self._hspace_()
-            self._closure(block2)
-            self._statement_()
-            self.add_last_node_to_name('init')
+    @tatsumasu('MaxList')
+    def _max_list_(self):  # noqa
+        with self._choice():
+            with self._option():
 
-            def block4():
+                def block0():
+                    self._hspace_()
+                self._closure(block0)
+                self._token(',')
+
+                def block1():
+                    self._hspace_()
+                self._closure(block1)
+                self._expression_()
+                self.name_last_node('left')
+                self._max_list_()
+                self.name_last_node('rest')
+            with self._option():
+
+                def block4():
+                    self._hspace_()
+                self._closure(block4)
+                self._token(',')
 
                 def block5():
                     self._hspace_()
                 self._closure(block5)
-                self._token(';')
-
-                def block6():
-                    self._hspace_()
-                self._closure(block6)
-                self._statement_()
-                self.add_last_node_to_name('init')
-            self._closure(block4)
-
-            def block8():
-                self._hspace_()
-            self._closure(block8)
-            self._token('\n')
-        self._closure(block0)
-        with self._group():
-            with self._choice():
-                with self._option():
-                    self._MIN_()
-                    self.name_last_node('min')
-                with self._option():
-                    self._MAX_()
-                    self.name_last_node('max')
-                with self._option():
-                    self._ARGMIN_()
-                    self.name_last_node('amin')
-                with self._option():
-                    self._ARGMAX_()
-                    self.name_last_node('amax')
-                self._error('no available options')
-        self._token('_(')
-
-        def block14():
-            self._hspace_()
-        self._closure(block14)
-        self._where_condition_terse_()
-        self.add_last_node_to_name('defs')
-
-        def block16():
-
-            def block17():
-                self._hspace_()
-            self._closure(block17)
-            self._token(',')
-
-            def block18():
-                self._hspace_()
-            self._closure(block18)
-            self._where_condition_terse_()
-            self.add_last_node_to_name('defs')
-        self._closure(block16)
-
-        def block20():
-            self._hspace_()
-        self._closure(block20)
-        self._token(')')
-
-        def block21():
-            self._hspace_()
-        self._closure(block21)
-        self._expression_()
-        self.name_last_node('exp')
-
-        def block23():
-
-            def block24():
-
-                def block25():
-                    self._hspace_()
-                self._closure(block25)
-
-                def block26():
-                    self._separator_()
-                self._closure(block26)
-
-                def block27():
-                    self._hspace_()
-                self._closure(block27)
-            self._closure(block24)
-            self._SUBJECT_TO_()
-
-            def block28():
-
-                def block29():
-                    self._hspace_()
-                self._closure(block29)
-
-                def block30():
-                    self._separator_()
-                self._closure(block30)
-
-                def block31():
-                    self._hspace_()
-                self._closure(block31)
-            self._closure(block28)
-            self._multi_cond_()
-            self.name_last_node('cond')
-        self._closure(block23)
+                self._expression_()
+                self.name_last_node('left')
+            self._error('no available options')
         self.ast._define(
-            ['amax', 'amin', 'cond', 'exp', 'max', 'min'],
-            ['defs', 'init']
+            ['left', 'rest'],
+            []
         )
 
     @tatsumasu('MultiCond')
@@ -4538,8 +4471,6 @@ class grammarinitParser(Parser):
             with self._option():
                 self._expression_()
             with self._option():
-                self._optimize_operator_()
-            with self._option():
                 self._multi_cond_expr_()
             self._error('no available options')
 
@@ -4564,6 +4495,9 @@ class grammarinitParser(Parser):
                 self.name_last_node('op')
             with self._option():
                 self._subexpression_()
+                self.name_last_node('sub')
+            with self._option():
+                self._max_operator_()
                 self.name_last_node('sub')
             with self._option():
                 self._number_matrix_()
@@ -5451,7 +5385,10 @@ class grammarinitSemantics(object):
     def sum_operator(self, ast):  # noqa
         return ast
 
-    def optimize_operator(self, ast):  # noqa
+    def max_operator(self, ast):  # noqa
+        return ast
+
+    def max_list(self, ast):  # noqa
         return ast
 
     def multi_cond(self, ast):  # noqa
@@ -6025,15 +5962,14 @@ class Summation(ModelBase):
     sub = None
 
 
-class Optimize(ModelBase):
-    amax = None
-    amin = None
-    cond = None
-    defs = None
-    exp = None
-    init = None
-    max = None
-    min = None
+class Max(ModelBase):
+    left = None
+    rest = None
+
+
+class MaxList(ModelBase):
+    left = None
+    rest = None
 
 
 class MultiCond(ModelBase):

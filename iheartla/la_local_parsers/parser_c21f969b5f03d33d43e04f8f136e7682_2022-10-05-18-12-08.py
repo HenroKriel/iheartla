@@ -25,7 +25,7 @@ from tatsu.util import re, generic_main  # noqa
 KEYWORDS = {}  # type: ignore
 
 
-class grammardefaultBuffer(Buffer):
+class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
     def __init__(
         self,
         text,
@@ -37,7 +37,7 @@ class grammardefaultBuffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(grammardefaultBuffer, self).__init__(
+        super(grammarc21f969b5f03d33d43e04f8f136e7682Buffer, self).__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -49,7 +49,7 @@ class grammardefaultBuffer(Buffer):
         )
 
 
-class grammardefaultParser(Parser):
+class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
     def __init__(
         self,
         whitespace=re.compile('(?!.*)'),
@@ -61,12 +61,12 @@ class grammardefaultParser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=grammardefaultBuffer,
+        buffer_class=grammarc21f969b5f03d33d43e04f8f136e7682Buffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(grammardefaultParser, self).__init__(
+        super(grammarc21f969b5f03d33d43e04f8f136e7682Parser, self).__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -79,10 +79,6 @@ class grammardefaultParser(Parser):
             buffer_class=buffer_class,
             **kwargs
         )
-        self.new_id_list = []
-        self.new_func_list = []
-        self.builtin_list = []
-        self.const_e = False
 
     @tatsumasu('Start')
     @nomemo
@@ -4114,17 +4110,7 @@ class grammardefaultParser(Parser):
 
     @tatsumasu()
     def _builtin_operators_(self):  # noqa
-        if len(self.builtin_list) > 0:
-            with self._choice():
-                for new_builtin in self.builtin_list:
-                    with self._option():
-                        func = getattr(self, "_{}_".format(new_builtin), None)
-                        func()
-                with self._option():
-                    self._predefined_built_operators_()
-                self._error('no available options')
-        else:
-            self._predefined_built_operators_()
+        self._predefined_built_operators_()
 
     @tatsumasu('Statements')
     @nomemo
@@ -4552,27 +4538,11 @@ class grammardefaultParser(Parser):
 
     @tatsumasu()
     def _constant_(self):  # noqa
-        if self.const_e:
-            with self._choice():
-                with self._option():
-                    self._pi_()
-                with self._option():
-                    self._e_()
-                self._error('no available options')
-        else:
-            self._pi_()
+        self._pi_()
 
     @tatsumasu()
     def _KEYWORDS_(self):  # noqa
-        if self.const_e:
-            with self._choice():
-                with self._option():
-                    self._BUILTIN_KEYWORDS_()
-                with self._option():
-                    self._e_()
-                self._error('no available options')
-        else:
-            self._BUILTIN_KEYWORDS_()
+        self._BUILTIN_KEYWORDS_()
 
     @tatsumasu('Subexpression')
     def _subexpression_(self):  # noqa
@@ -5172,76 +5142,30 @@ class grammardefaultParser(Parser):
 
     @tatsumasu()
     def _func_id_(self):  # noqa
-        if len(self.new_func_list) > 0:
-            with self._choice():
-                for new_id in self.new_func_list:
-                    with self._option():
-                        self._pattern(new_id)
-                self._error('no available options')
-        else:
-            # default
-            self._token('!!!')
+        self._token('!!!')
 
     @tatsumasu('IdentifierAlone')
     def _identifier_alone_(self):  # noqa
-        if len(self.new_id_list) > 0:
+        with self._ifnot():
+            self._KEYWORDS_()
+        with self._group():
             with self._choice():
                 with self._option():
-                    with self._group():
-                        with self._choice():
-                            for new_id in self.new_id_list:
-                                with self._option():
-                                    self._pattern(new_id)
-                            self._error('no available options')
-                    self.name_last_node('const')
+                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*')
+                    self.name_last_node('value')
                 with self._option():
-                    with self._group():
-                        with self._choice():
-                            with self._option():
-                                with self._ifnot():
-                                    with self._group():
-                                        with self._choice():
-                                            with self._option():
-                                                self._KEYWORDS_()
-                                            for new_id in self.new_id_list:
-                                                with self._option():
-                                                    self._pattern(new_id)
-                                            self._error('no available options')
-                                self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*')
-                                self.name_last_node('value')
-                            with self._option():
-                                self._token('`')
-                                self._pattern('[^`]*')
-                                self.name_last_node('id')
-                                self._token('`')
-                            self._error('no available options')
+                    self._token('`')
+                    self._pattern('[^`]*')
+                    self.name_last_node('id')
+                    self._token('`')
                 self._error('no available options')
-            self.ast._define(
-                ['const', 'id', 'value'],
-                []
-            )
-        else:
-            # default
-            with self._ifnot():
-                self._KEYWORDS_()
-            with self._group():
-                with self._choice():
-                    with self._option():
-                        self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*')
-                        self.name_last_node('value')
-                    with self._option():
-                        self._token('`')
-                        self._pattern('[^`]*')
-                        self.name_last_node('id')
-                        self._token('`')
-                    self._error('no available options')
-            self.ast._define(
-                ['id', 'value'],
-                []
-            )
+        self.ast._define(
+            ['id', 'value'],
+            []
+        )
 
 
-class grammardefaultSemantics(object):
+class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
     def start(self, ast):  # noqa
         return ast
 
@@ -5911,7 +5835,7 @@ def main(filename, start=None, **kwargs):
     else:
         with open(filename) as f:
             text = f.read()
-    parser = grammardefaultParser()
+    parser = grammarc21f969b5f03d33d43e04f8f136e7682Parser()
     return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
@@ -5919,7 +5843,7 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, grammardefaultParser, name='grammardefault')
+    ast = generic_main(main, grammarc21f969b5f03d33d43e04f8f136e7682Parser, name='grammarc21f969b5f03d33d43e04f8f136e7682')
     print('AST:')
     print(ast)
     print()
@@ -5948,13 +5872,13 @@ class ModelBase(Node):
     pass
 
 
-class grammardefaultModelBuilderSemantics(ModelBuilderSemantics):
+class grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics(ModelBuilderSemantics):
     def __init__(self, context=None, types=None):
         types = [
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(grammardefaultModelBuilderSemantics, self).__init__(context=context, types=types)
+        super(grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
 class Start(ModelBase):
@@ -6205,7 +6129,6 @@ class IdentifierSubscript(ModelBase):
 class IdentifierAlone(ModelBase):
     id = None
     value = None
-    const = None
 
 
 class Pi(ModelBase):
