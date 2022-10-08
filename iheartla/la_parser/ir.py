@@ -57,6 +57,7 @@ class IRNodeType(Enum):
     Squareroot = 221
     PseudoInverse = 222
     Max = 223
+    MaxList = 224
     # matrix
     Matrix = 300
     MatrixRows = 301
@@ -548,20 +549,37 @@ class AddSubNode(ExprNode):
         return child_node
 
 class MaxNode(ExprNode):
-    def __init__(self, left=None, right=None, parse_info=None, raw_text=None):
+    def __init__(self, left=None, rest=None, parse_info=None, raw_text=None):
         super().__init__(IRNodeType.Max, parse_info=parse_info, raw_text=raw_text)
         self.left = left
-        self.right = right
+        self.rest = rest
 
     def get_child(self, node_type):
         if self.left.is_node(node_type):
             child_node = self.left
-        elif self.right.is_node(node_type):
-            child_node = self.right
+        elif self.rest.is_node(node_type):
+            child_node = self.rest
         else:
             child_node = self.left.get_child(node_type)
             if child_node is None:
-                child_node = self.right.get_child(node_type)
+                child_node = self.rest.get_child(node_type)
+        return child_node
+
+class MaxListNode(ExprNode):
+    def __init__(self, left=None, rest=None, parse_info=None, raw_text=None):
+        super().__init__(IRNodeType.MaxList, parse_info=parse_info, raw_text=raw_text)
+        self.left = left
+        self.rest = rest
+
+    def get_child(self, node_type):
+        if self.left.is_node(node_type):
+            child_node = self.left
+        elif self.rest.is_node(node_type):
+            child_node = self.rest
+        else:
+            child_node = self.left.get_child(node_type)
+            if child_node is None:
+                child_node = self.rest.get_child(node_type)
         return child_node
 
 class MulOpType(Enum):

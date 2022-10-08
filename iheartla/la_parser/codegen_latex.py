@@ -829,5 +829,16 @@ class CodeGenLatex(CodeGen):
             content = ' \mathop{\\text{inv}}'
         return "{}\\left( {} \\right)".format(content, param_info)
 
+    def visit_maxlist(self, node, **kwargs):
+        if node.rest:
+            left_content = self.visit(node.left, **kwargs)
+            rest_content = self.visit(node.rest, **kwargs)
+            return "{}, {}".format(left_content, rest_content)
+        else:
+            left_content = self.visit(node.left, **kwargs)
+            return "{}".format(left_content)
+
     def visit_max(self, node, **kwargs):
-        return "max({}, {})".format(self.visit(node.left, **kwargs), self.visit(node.right, **kwargs))
+        left_content = self.visit(node.left, **kwargs)
+        rest_content  = self.visit(node.rest, **kwargs)
+        return "max({}, {})".format(left_content, rest_content)

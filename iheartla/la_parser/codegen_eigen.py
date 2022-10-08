@@ -1933,11 +1933,22 @@ class CodeGenEigen(CodeGen):
             content = 'M_E'
         return CodeNodeInfo(content)
 
+    def visit_maxlist(self, node, **kwargs):
+        if node.rest:
+            left_info = self.visit(node.left, **kwargs)
+            rest_info = self.visit(node.rest, **kwargs)
+            left_info.content = "{}, {}".format(left_info.content, rest_info.content)
+            left_info.pre_list += rest_info.pre_list
+        else:
+            left_info = self.visit(node.left, **kwargs)
+            left_info.content = "{}".format(left_info.content)
+        return left_info
+
     def visit_max(self, node, **kwargs):
         left_info = self.visit(node.left, **kwargs)
-        right_info = self.visit(node.right, **kwargs)
-        left_info.content = "std::max({}, {})".format(left_info.content, right_info.content)
-        left_info.pre_list += right_info.pre_list
+        rest_info  = self.visit(node.rest, **kwargs)
+        left_info.content = "std::max({{{}, {}}})".format(left_info.content, rest_info.content)
+        left_info.pre_list += rest_info.pre_list
         return left_info
 
     ###################################################################

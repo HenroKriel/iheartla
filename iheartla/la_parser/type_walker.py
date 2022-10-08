@@ -1701,15 +1701,36 @@ class TypeWalker(NodeWalker):
             self.expr_dict[var_node.get_main_id()] = list(opt_node.symbols)
         return node_info
 
+    def walk_MaxList(self, node, **kwargs):
+        left_info = self.walk(node.left, **kwargs)
+        if node.rest:
+            rest_info = self.walk(node.rest, **kwargs)
+            ret_type, need_cast = self.type_inference(TypeInferenceEnum.INF_ADD, left_info, rest_info)
+            ret_info = NodeInfo(ret_type, symbols=left_info.symbols.union(rest_info.symbols))
+            ir_node = MaxListNode(left_info.ir, rest_info.ir, parse_info=node.parseinfo)
+            ir_node.la_type = ret_type
+            left_info.ir.set_parent(ir_node)
+            rest_info.ir.set_parent(ir_node)
+            ret_info.ir = ir_node
+        else:
+            ret_type = left_info.ir.la_type
+            ret_info = NodeInfo(ret_type, symbols=left_info.symbols)
+            ir_node = MaxListNode(left_info.ir, None, parse_info=node.parseinfo)
+            ir_node.la_type = ret_type
+            left_info.ir.set_parent(ir_node)
+            ret_info.ir = ir_node
+        return ret_info
+            
+
     def walk_Max(self, node, **kwargs):
         left_info = self.walk(node.left, **kwargs)
-        right_info = self.walk(node.right, **kwargs)
-        ret_type, need_cast = self.type_inference(TypeInferenceEnum.INF_ADD, left_info, right_info)
-        ret_info = NodeInfo(ret_type, symbols=left_info.symbols.union(right_info.symbols))
-        ir_node = MaxNode(left_info.ir, right_info.ir, parse_info=node.parseinfo)
+        rest_info = self.walk(node.rest, **kwargs)
+        ret_type, need_cast = self.type_inference(TypeInferenceEnum.INF_ADD, left_info, rest_info)
+        ret_info = NodeInfo(ret_type, symbols=left_info.symbols.union(rest_info.symbols))
+        ir_node = MaxNode(left_info.ir, rest_info.ir, parse_info=node.parseinfo)
         ir_node.la_type = ret_type
         left_info.ir.set_parent(ir_node)
-        right_info.ir.set_parent(ir_node)
+        rest_info.ir.set_parent(ir_node)
         ret_info.ir = ir_node
         return ret_info
 

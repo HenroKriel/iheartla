@@ -78,7 +78,12 @@ optimize_operator::Optimize
 
 max_operator::Max
     =
-    MAX '('  {hspace} left:expression { {hspace} ','  {hspace} right:expression  }+ ')'
+    MAX '('  {hspace} left:expression rest:max_list {hspace} ')'
+    ;
+
+max_list::MaxList
+    = {hspace} ','  {hspace} left:expression rest:max_list
+    | {hspace} ','  {hspace} left:expression
     ;
 
 multi_cond::MultiCond
