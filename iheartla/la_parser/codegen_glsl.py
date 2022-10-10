@@ -574,7 +574,7 @@ class CodeGenGLSL(CodeGen):
             content += self.func_name + '(' + ', '.join(par_des_list) + ')\n'  # func name
             test_function.insert(0, "void {}({})".format(rand_func_name, ', '.join(test_par_list)))
         else:
-            content += self.func_name + '(\n    ' + ',\n    '.join(par_des_list) + ')\n'  # func name
+            content += self.func_name + '_output ' + self.func_name + '(' + self.func_name + '_input _input)\n'  # func name
             test_function.insert(0, "void {}({})".format(rand_func_name, ',\n    '.join(test_par_list)))
         # merge content
         pre_content = content
@@ -611,11 +611,29 @@ class CodeGenGLSL(CodeGen):
             else:
                 stats_content += ret_str + stat_info.content + '\n'
 
-        # content += stats_content
-        # content += '\n}\n'
-        content = self.get_struct_definition(self.update_prelist_str([pre_content], '    '),
-                                             self.update_prelist_str([content], '    '),
-                                             self.update_prelist_str([stats_content], '    '))
+        out_list = []
+        type_out_list = []
+        for parameter in self.lhs_list:
+            if parameter in self.symtable and self.get_sym_type(parameter) is not None:
+                out_list.append(parameter)
+                type_out_list.append("{} {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
+        unpack = '    //unpacking struct\n'
+        pack = '    //packing struct\n    phong_output _output;\n'
+        #creates list of params without type info. Can't use self.parameters because it doesn't include dimension parameters (e.g., dim0)
+        params = [s[s.index(' ') + 1:] for s in par_des_list]
+        for param, type_param in zip(params, par_des_list):
+            unpack += f'    {type_param} = _input.{param};\n'
+        unpack += '\n'
+        for type_o in type_out_list:
+            unpack += '    ' + type_o + ';\n' 
+        for o in out_list:
+            pack += f'    _output.{o} = {o};\n'
+        unpack += '\n'
+        pack += '    return _output;\n'
+        content = "struct " + self.func_name + "_input {\n    " + ";\n    ".join(par_des_list) + ";\n};\n\n" \
+                + "struct " + self.func_name + "_output {\n    " + ";\n    ".join(type_out_list) + ";\n};\n\n" \
+                + pre_content + "{\n" + unpack + stats_content + pack + "}"
+
         # return value
         # ret_value = self.get_ret_struct()
         # content += '    return ' + ret_value + ';'
