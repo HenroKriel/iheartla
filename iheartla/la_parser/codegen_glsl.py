@@ -570,9 +570,6 @@ class CodeGenGLSL(CodeGen):
         if len(self.parameters) == 0:
             content += self.func_name + '(' + ')\n'  # func name
             test_function.insert(0, "void {}({})".format(rand_func_name, ', '.join(test_par_list)))
-        elif len(self.parameters) == 1:
-            content += self.func_name + '(' + ', '.join(par_des_list) + ')\n'  # func name
-            test_function.insert(0, "void {}({})".format(rand_func_name, ', '.join(test_par_list)))
         else:
             content += self.func_name + '_output ' + self.func_name + '(' + self.func_name + '_input _input)\n'  # func name
             test_function.insert(0, "void {}({})".format(rand_func_name, ',\n    '.join(test_par_list)))
@@ -618,7 +615,7 @@ class CodeGenGLSL(CodeGen):
                 out_list.append(parameter)
                 type_out_list.append("{} {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
         unpack = '    //unpacking struct\n'
-        pack = '    //packing struct\n    phong_output _output;\n'
+        pack = f'    //packing struct\n    {self.func_name}_output _output;\n'
         #creates list of params without type info. Can't use self.parameters because it doesn't include dimension parameters (e.g., dim0)
         params = [s[s.index(' ') + 1:] for s in par_des_list]
         for param, type_param in zip(params, par_des_list):
