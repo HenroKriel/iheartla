@@ -308,6 +308,16 @@ class CodeGenGLSL(CodeGen):
             main_declaration.append("    {} {};".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
             par_des_list.append("{} {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
             if parameter in dim_defined_dict and dim_defined_dict[parameter] == 0:
+                dim_des = '//corresponds to '
+                first = True
+                for p in self.parameters:
+                    if(self.get_sym_type(p).is_sequence() and self.get_sym_type(p).size == self.get_sym_type(parameter).size):
+                        if first:
+                            dim_des += f'{p}'
+                        else:
+                            dim_des += f', {p}'
+                        first = False
+                par_des_list.append(dim_des)
                 par_des_list.append("int {}".format(self.get_sym_type(parameter).size))
             test_par_list.append("{} & {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
             if self.get_sym_type(parameter).desc:
