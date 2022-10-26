@@ -9,6 +9,7 @@ class CodeGenGLSL(CodeGen):
 
     def init_type(self, type_walker, func_name):
         super().init_type(type_walker, func_name)
+        self.shape = type_walker.shape
         self.pre_str = ''''''
         self.post_str = ''''''
         self.ret = 'ret'

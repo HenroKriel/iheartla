@@ -541,6 +541,9 @@ class TypeWalker(NodeWalker):
         raise Exception('Unexpected type %s walked', type(o).__name__)
 
     def walk_Start(self, node, **kwargs):
+        self.shape = False
+        if node.shape:
+            self.shape = True
         self.main_param.symtable = self.symtable
         self.pre_walk = True if 'pre_walk' in kwargs else False
         # self.symtable.clear()
