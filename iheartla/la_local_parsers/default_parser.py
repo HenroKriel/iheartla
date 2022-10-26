@@ -89,28 +89,33 @@ class grammardefaultParser(Parser):
     def _start_(self):  # noqa
 
         def block0():
+            self._token('shape\n')
+            self.name_last_node('shape')
+        self._closure(block0)
 
-            def block1():
+        def block2():
+
+            def block3():
                 self._separator_with_space_()
-            self._closure(block1)
+            self._closure(block3)
 
-            def block2():
+            def block4():
                 self._hspace_()
-            self._closure(block2)
+            self._closure(block4)
             self._valid_block_()
             self.add_last_node_to_name('vblock')
 
-            def block4():
+            def block6():
                 self._separator_with_space_()
-            self._closure(block4)
-        self._positive_closure(block0)
+            self._closure(block6)
+        self._positive_closure(block2)
 
-        def block5():
+        def block7():
             self._blank_()
-        self._closure(block5)
+        self._closure(block7)
         self._check_eof()
         self.ast._define(
-            [],
+            ['shape'],
             ['vblock']
         )
 
@@ -5958,6 +5963,7 @@ class grammardefaultModelBuilderSemantics(ModelBuilderSemantics):
 
 
 class Start(ModelBase):
+    shape = None
     vblock = None
 
 
