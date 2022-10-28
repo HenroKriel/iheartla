@@ -642,6 +642,17 @@ class CodeGenGLSL(CodeGen):
                 + "struct " + self.func_name + "_output {\n    " + ";\n    ".join(type_out_list) + ";\n};\n\n" \
                 + pre_content + "{\n" + unpack + stats_content + pack + "}"
 
+        if self.shape:
+            content += f'''
+
+vec3 grad_{self.func_name}(vec3 sect, float dist) {{
+    const float h = 0.001;
+    vec3 grad = vec3({self.func_name}({self.func_name}_input(sect+vec3(h,0,0))).d, 
+                            {self.func_name}({self.func_name}_input(sect+vec3(0,h,0))).d,
+                            {self.func_name}({self.func_name}_input(sect+vec3(0,0,h))).d);
+    return (grad - dist)/h;
+}}'''
+
         # return value
         # ret_value = self.get_ret_struct()
         # content += '    return ' + ret_value + ';'
