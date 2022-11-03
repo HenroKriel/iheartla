@@ -93,16 +93,10 @@ class CodeGenGLSL(CodeGen):
                 else:
                     type_str = "Eigen::VectorXd"
             else:
-                if la_type.is_dim_constant():
-                    if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
-                        type_str = "ivec{}".format(la_type.rows)
-                    else:
-                        type_str = "vec{}".format(la_type.rows)
+                if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
+                    type_str = "ivec{}".format(la_type.rows)
                 else:
-                    if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
-                        type_str = "Eigen::VectorXi"
-                    else:
-                        type_str = "Eigen::VectorXd"
+                    type_str = "vec{}".format(la_type.rows)
         elif la_type.is_scalar():
             if la_type.is_scalar() and la_type.is_int:
                 type_str = "int"
@@ -1100,8 +1094,8 @@ vec3 grad_{self.func_name}(vec3 sect, float dist) {{
         if self.get_sym_type(cur_m_id).is_dim_constant():
             content = '    Eigen::Matrix<double, {}, 1> {};\n'.format(self.get_sym_type(cur_m_id).rows, cur_m_id)
         else:
-            content = '    Eigen::VectorXd {}({});\n'.format(cur_m_id, self.get_sym_type(cur_m_id).rows)
-        content += '    {} << {};\n'.format(cur_m_id, ", ".join(ret))
+            content = '    vec{} {};\n'.format(self.get_sym_type(cur_m_id).rows, cur_m_id)
+        content += '    {} = vec{}({});\n'.format(cur_m_id, self.get_sym_type(cur_m_id).rows, ", ".join(ret))
         pre_list.append(content)
         return CodeNodeInfo(cur_m_id, pre_list=pre_list)
 
@@ -1305,6 +1299,8 @@ vec3 grad_{self.func_name}(vec3 sect, float dist) {{
     def visit_vector_index(self, node, **kwargs):
         main_info = self.visit(node.main, **kwargs)
         index_info = self.visit(node.row_index, **kwargs)
+        #drop the .0
+        index_info.content = index_info.content[:index_info.content.index('.')]
         if node.row_index.la_type.index_type:
             return CodeNodeInfo("{}[{}]".format(main_info.content, index_info.content))
         else:
