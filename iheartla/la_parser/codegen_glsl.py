@@ -639,13 +639,18 @@ class CodeGenGLSL(CodeGen):
         if self.shape:
             content += f'''
 
-vec3 grad_{self.func_name}(vec3 sect, float dist) {{
+vec3 grad_{self.func_name}({self.func_name}_input _input) {{
     const float h = 0.001;
-    vec3 grad = vec3({self.func_name}({self.func_name}_input(sect+vec3(h,0,0))).d, 
-                            {self.func_name}({self.func_name}_input(sect+vec3(0,h,0))).d,
-                            {self.func_name}({self.func_name}_input(sect+vec3(0,0,h))).d);
+    {self.func_name}_input x_input = _input;
+    {self.func_name}_input y_input = _input;
+    {self.func_name}_input z_input = _input;
+    x_input.p += vec3(h, 0, 0);
+    y_input.p += vec3(0, h, 0);
+    z_input.p += vec3(0, 0, h);
+    vec3 grad = vec3({self.func_name}(x_input).d, {self.func_name}(y_input).d, {self.func_name}(z_input).d);
     return (grad - dist)/h;
-}}'''
+}}
+'''
 
         # return value
         # ret_value = self.get_ret_struct()
