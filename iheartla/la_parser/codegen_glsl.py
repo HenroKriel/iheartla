@@ -641,6 +641,7 @@ class CodeGenGLSL(CodeGen):
 
 vec3 grad_{self.func_name}({self.func_name}_input _input) {{
     const float h = 0.001;
+    float dist = shape(_input).d;
     {self.func_name}_input x_input = _input;
     {self.func_name}_input y_input = _input;
     {self.func_name}_input z_input = _input;
