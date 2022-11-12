@@ -41,7 +41,7 @@ class DependenceData(object):
 
 
 class EquationData(object):
-    def __init__(self, name='', parameters=[], definition=[], dependence=[], symtable={}, desc_dict={}, la_content='', func_data_dict={}, expr_dict={}, opt_syms=[]):
+    def __init__(self, name='', parameters=[], definition=[], dependence=[], symtable={}, desc_dict={}, la_content='', func_data_dict={}, expr_dict={}, opt_syms=[], shape=False):
         self.name = name
         self.undescribed_list = []
         self.parameters = parameters  # parameters for source file
@@ -54,6 +54,7 @@ class EquationData(object):
         self.func_data_dict = func_data_dict
         self.opt_syms = opt_syms
         self.expr_dict = {}
+        self.shape = shape
         # for key in self.desc_dict.keys():
         #     self.desc_dict[key] = self.desc_dict[key].replace('"', '\"')
         # remove subscript in symbol
@@ -315,7 +316,7 @@ class TypeWalker(NodeWalker):
                             copy.deepcopy(self.desc_dict), self.la_content,
                             copy.deepcopy(self.func_data_dict),
                             copy.deepcopy(self.expr_dict),
-                            copy.deepcopy(self.opt_syms))
+                            copy.deepcopy(self.opt_syms), self.shape)
 
     def is_inside_sum(self):
         return len(self.sum_subs) > 0
