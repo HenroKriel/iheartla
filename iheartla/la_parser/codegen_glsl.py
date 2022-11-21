@@ -78,9 +78,15 @@ class CodeGenGLSL(CodeGen):
                 else:
                     if la_type.is_dim_constant():
                         if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
-                            type_str = "imat{}x{}".format(la_type.cols, la_type.rows)
+                            if la_type.cols == la_type.rows:
+                                type_str = "imat{}".format(la_type.cols)
+                            else:
+                                type_str = "imat{}x{}".format(la_type.cols, la_type.rows)
                         else:
-                            type_str = "mat{}x{}".format(la_type.cols, la_type.rows)
+                            if la_type.cols == la_type.rows:
+                                type_str = "mat{}".format(la_type.cols)
+                            else:
+                                type_str = "mat{}x{}".format(la_type.cols, la_type.rows)
                     else:
                         if la_type.element_type is not None and la_type.element_type.is_scalar() and la_type.element_type.is_int:
                             type_str = "Eigen::MatrixXi"
@@ -573,7 +579,7 @@ class CodeGenGLSL(CodeGen):
                 self.ret_symbol)
         ret_type = self.get_result_type()
         if len(self.parameters) == 0:
-            content += self.func_name + '(' + ')\n'  # func name
+            content += self.func_name + '_output ' + self.func_name + '(' + ')\n'  # func name
             test_function.insert(0, "void {}({})".format(rand_func_name, ', '.join(test_par_list)))
         else:
             content += self.func_name + '_output ' + self.func_name + '(' + self.func_name + '_input _input)\n'  # func name
@@ -613,31 +619,33 @@ class CodeGenGLSL(CodeGen):
             else:
                 stats_content += ret_str + stat_info.content + '\n'
 
-        out_list = []
-        type_out_list = []
-        for parameter in self.lhs_list:
-            if parameter in self.symtable and self.get_sym_type(parameter) is not None:
-                out_list.append(parameter)
-                type_out_list.append("{} {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
-        unpack = '    //unpacking struct\n'
-        pack = f'    //packing struct\n    {self.func_name}_output _output;\n'
-        #creates list of params without type info. Can't use self.parameters because it doesn't include dimension parameters (e.g., dim0)
-        params = [s[s.index(' ') + 1:] for s in par_des_list]
-        for param, type_param in zip(params, par_des_list):
-            unpack += f'    {type_param} = _input.{param};\n'
-        unpack += '\n'
-        for type_o in type_out_list:
-            unpack += '    ' + type_o + ';\n' 
-        for o in out_list:
-            pack += f'    _output.{o} = {o};\n'
-        unpack += '\n'
-        pack += '    return _output;\n'
-        content = "struct " + self.func_name + "_input {\n    " + ";\n    ".join(par_des_list) + ";\n};\n\n" \
-                + "struct " + self.func_name + "_output {\n    " + ";\n    ".join(type_out_list) + ";\n};\n\n" \
-                + pre_content + "{\n" + unpack + stats_content + pack + "}"
-
-        if self.shape:
-            content += f'''
+        if not self.code_only:
+            out_list = []
+            type_out_list = []
+            for parameter in self.lhs_list:
+                if parameter in self.symtable and self.get_sym_type(parameter) is not None:
+                    out_list.append(parameter)
+                    type_out_list.append("{} {}".format(self.get_ctype(self.get_sym_type(parameter)), parameter))
+            unpack = '    //unpacking struct\n'
+            pack = f'    //packing struct\n    {self.func_name}_output _output;\n'
+            #creates list of params without type info. Can't use self.parameters because it doesn't include dimension parameters (e.g., dim0)
+            params = [s[s.index(' ') + 1:] for s in par_des_list]
+            for param, type_param in zip(params, par_des_list):
+                unpack += f'    {type_param} = _input.{param};\n'
+            unpack += '\n'
+            for type_o in type_out_list:
+                unpack += '    ' + type_o + ';\n' 
+            for o in out_list:
+                pack += f'    _output.{o} = {o};\n'
+            unpack += '\n'
+            pack += '    return _output;\n'
+            content = ''
+            if len(par_des_list) != 0:
+                content += "struct " + self.func_name + "_input {\n    " + ";\n    ".join(par_des_list) + ";\n};\n\n"
+            content += "struct " + self.func_name + "_output {\n    " + ";\n    ".join(type_out_list) + ";\n};\n\n" \
+                    + pre_content + "{\n" + unpack + stats_content + pack + "}"
+            if self.shape:
+                content += f'''
 
 vec3 grad_{self.func_name}({self.func_name}_input _input) {{
     const float h = 0.001;
@@ -652,6 +660,11 @@ vec3 grad_{self.func_name}({self.func_name}_input _input) {{
     return (grad - dist)/h;
 }}
 '''
+        else:
+            if 'ret' in self.symtable and self.get_sym_type('ret') is not None:
+                temp_str = "    {} ret;\n".format(self.get_ctype(self.get_sym_type('ret')))
+            content = temp_str + stats_content
+
 
         # return value
         # ret_value = self.get_ret_struct()
@@ -666,7 +679,7 @@ vec3 grad_{self.func_name}({self.func_name}_input _input) {{
         main_content.append('    return 0;')
         main_content.append('}')
         self.code_frame.struct = self.trim_content(content)
-        if not self.class_only:
+        if not self.class_only and not self.code_only:
             self.code_frame.main = self.trim_content('\n'.join(main_content))
             self.code_frame.rand_data = self.trim_content('\n'.join(test_function))
             content += '\n\n' + '\n'.join(test_function) + '\n\n\n' + '\n'.join(main_content)
@@ -1228,19 +1241,25 @@ vec3 grad_{self.func_name}({self.func_name}_input _input) {{
             cur_m_id = sparse_id
         else:
             # dense
-            if self.get_sym_type(cur_m_id).is_dim_constant():
-                content += 'Eigen::Matrix<double, {}, {}> {};\n'.format(self.get_sym_type(cur_m_id).rows,
-                                                                        self.get_sym_type(cur_m_id).cols, cur_m_id)
+            if self.get_sym_type(cur_m_id).cols == self.get_sym_type(cur_m_id).rows:
+                content += 'mat{} {};\n'.format(self.get_sym_type(cur_m_id).cols, cur_m_id)
             else:
-                content += 'Eigen::MatrixXd {}({}, {});\n'.format(cur_m_id, self.get_sym_type(cur_m_id).rows,
-                                                                  self.get_sym_type(cur_m_id).cols)
+                content += 'mat{}x{} {};\n'.format(self.get_sym_type(cur_m_id).cols, self.get_sym_type(cur_m_id).rows, cur_m_id)
             if type_info.la_type:
                 all_rows = []
                 m_content = ""
-                for i in range(len(ret)):
-                    all_rows.append(', '.join(ret[i]))
-                m_content += '{};'.format(',\n    '.join(all_rows))
-                content += '    {} << {}\n'.format(cur_m_id, m_content)
+                for j in range(len(ret[0])):
+                    row = ''
+                    for i in range(len(ret)):
+                        row += ret[i][j]
+                        if i != len(ret) - 1:
+                            row += ', '
+                    all_rows.append(row)
+                if self.get_sym_type(cur_m_id).cols == self.get_sym_type(cur_m_id).rows:
+                    m_content += 'mat{}({});'.format(self.get_sym_type(cur_m_id).cols, ',\n    '.join(all_rows))
+                else:
+                    m_content += 'mat{}x{}({});'.format(self.get_sym_type(cur_m_id).cols, self.get_sym_type(cur_m_id).rows, ',\n    '.join(all_rows))
+                content += '    {} = {}\n'.format(cur_m_id, m_content)
             else:
                 # dense
                 m_list = []

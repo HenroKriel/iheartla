@@ -88,11 +88,12 @@ def get_codegen(parser_type):
     return _codegen_dict[parser_type]
 
 
-def walk_model(parser_type, type_walker, node_info, func_name=None, struct=False, class_only=False):
+def walk_model(parser_type, type_walker, node_info, func_name=None, struct=False, class_only=False, code_only=False):
     gen = get_codegen(parser_type)
     #
     gen.init_type(type_walker, func_name)
     gen.class_only = class_only
+    gen.code_only = code_only
     code_frame = gen.visit_code(node_info)
     if parser_type != ParserTypeEnum.LATEX:  # print once
         gen.print_symbols()
@@ -451,7 +452,9 @@ def compile_la_content(la_content,
                        struct=False,
                        get_json=False,
                        get_vars=False,
-                       class_only=False):
+                       class_only=False,
+                       #only generate code inside function
+                       code_only=False):
     set_source_name(func_name)
     if path:
         global _module_path
@@ -475,7 +478,7 @@ def compile_la_content(la_content,
                     type_walker, start_node = parse_ir_node(la_content, model, cur_type)
                     if get_vars and var_data == '':
                         var_data = VarData(type_walker.parameters, type_walker.lhs_list, type_walker.ret_symbol)
-                    cur_content = walk_model(cur_type, type_walker, start_node, func_name, struct, class_only=class_only)
+                    cur_content = walk_model(cur_type, type_walker, start_node, func_name, struct, class_only=class_only, code_only=code_only)
                     ret[cur_type] = cur_content
                     if get_json and json == '':
                         json = type_walker.gen_json_content()
@@ -487,7 +490,7 @@ def compile_la_content(la_content,
                 if parser_type & cur_type:
                     if get_vars and var_data == '':
                         var_data = VarData(type_walker.parameters, type_walker.lhs_list, type_walker.ret_symbol)
-                    cur_content = walk_model(cur_type, type_walker, start_node, func_name, struct, class_only=class_only)
+                    cur_content = walk_model(cur_type, type_walker, start_node, func_name, struct, class_only=class_only, code_only=code_only)
                     record("compile {}".format(str(cur_type)))
                     ret[cur_type] = cur_content
                     if get_json and json == '':
