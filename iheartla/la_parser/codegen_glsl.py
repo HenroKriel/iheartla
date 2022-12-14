@@ -642,8 +642,9 @@ class CodeGenGLSL(CodeGen):
             content = ''
             if len(par_des_list) != 0:
                 content += "struct " + self.func_name + "_input {\n    " + ";\n    ".join(par_des_list) + ";\n};\n\n"
-            content += "struct " + self.func_name + "_output {\n    " + ";\n    ".join(type_out_list) + ";\n};\n\n" \
-                    + pre_content + "{\n" + unpack + stats_content + pack + "}"
+            if len(self.lhs_list) != 0:
+                content += "struct " + self.func_name + "_output {\n    " + ";\n    ".join(type_out_list) + ";\n};\n\n" \
+                        + pre_content + "{\n" + unpack + stats_content + pack + "}"
             if self.shape:
                 content += f'''
 
@@ -665,6 +666,7 @@ vec3 grad_{self.func_name}({self.func_name}_input _input) {{
                 temp_str = "    {} ret;\n".format(self.get_ctype(self.get_sym_type('ret')))
             content = temp_str + stats_content
 
+        content = self.local_func_def + content
 
         # return value
         # ret_value = self.get_ret_struct()
@@ -824,7 +826,7 @@ vec3 grad_{self.func_name}({self.func_name}_input _input) {{
         for parameter in node.params:
             param_info = self.visit(parameter, **kwargs)
             param_list.append(
-                "        const {} & {}".format(self.get_ctype(self.get_cur_param_data().symtable[param_info.content]),
+                "        {} {}".format(self.get_ctype(self.get_cur_param_data().symtable[param_info.content]),
                                                param_info.content))
         if len(param_list) == 0:
             content = "    {} {}()\n"
