@@ -471,30 +471,18 @@ def compile_la_content(la_content,
         record("First type walker, before")
         type_walker, start_node = get_start_node(model)
         record("First type walker, after")
-        if len(start_node.directives) > 0 and len(start_node.get_module_directives()) > 0:
-            # dependent modules
-            for cur_type in [ParserTypeEnum.NUMPY, ParserTypeEnum.EIGEN, ParserTypeEnum.MATLAB, ParserTypeEnum.LATEX, ParserTypeEnum.MATHJAX,  ParserTypeEnum.MATHML, ParserTypeEnum.MACROMATHJAX, ParserTypeEnum.GLSL]:
-                if parser_type & cur_type:
-                    type_walker, start_node = parse_ir_node(la_content, model, cur_type)
-                    if get_vars and var_data == '':
-                        var_data = VarData(type_walker.parameters, type_walker.lhs_list, type_walker.ret_symbol)
-                    cur_content = walk_model(cur_type, type_walker, start_node, func_name, struct, class_only=class_only, code_only=code_only)
-                    ret[cur_type] = cur_content
-                    if get_json and json == '':
-                        json = type_walker.gen_json_content()
-        else:
-            # free
-            record("compile_la_content, free")
-            type_walker, start_node = parse_ir_node(la_content, model, parser_type=ParserTypeEnum.EIGEN, start_node=start_node, type_walker=type_walker)
-            for cur_type in [ParserTypeEnum.NUMPY, ParserTypeEnum.EIGEN, ParserTypeEnum.MATLAB, ParserTypeEnum.LATEX, ParserTypeEnum.MATHJAX,  ParserTypeEnum.MATHML, ParserTypeEnum.MACROMATHJAX, ParserTypeEnum.GLSL]:
-                if parser_type & cur_type:
-                    if get_vars and var_data == '':
-                        var_data = VarData(type_walker.parameters, type_walker.lhs_list, type_walker.ret_symbol)
-                    cur_content = walk_model(cur_type, type_walker, start_node, func_name, struct, class_only=class_only, code_only=code_only)
-                    record("compile {}".format(str(cur_type)))
-                    ret[cur_type] = cur_content
-                    if get_json and json == '':
-                        json = type_walker.gen_json_content()
+        # free
+        record("compile_la_content, free")
+        type_walker, start_node = parse_ir_node(la_content, model, parser_type=ParserTypeEnum.EIGEN, start_node=start_node, type_walker=type_walker)
+        for cur_type in [ParserTypeEnum.NUMPY, ParserTypeEnum.EIGEN, ParserTypeEnum.MATLAB, ParserTypeEnum.LATEX, ParserTypeEnum.MATHJAX,  ParserTypeEnum.MATHML, ParserTypeEnum.MACROMATHJAX, ParserTypeEnum.GLSL]:
+            if parser_type & cur_type:
+                if get_vars and var_data == '':
+                    var_data = VarData(type_walker.parameters, type_walker.lhs_list, type_walker.ret_symbol)
+                cur_content = walk_model(cur_type, type_walker, start_node, func_name, struct, class_only=class_only, code_only=code_only)
+                record("compile {}".format(str(cur_type)))
+                ret[cur_type] = cur_content
+                if get_json and json == '':
+                    json = type_walker.gen_json_content()
     # except FailedParse as e:
     #     ret = LaMsg.getInstance().get_parse_error(e)
     # except FailedCut as e:
