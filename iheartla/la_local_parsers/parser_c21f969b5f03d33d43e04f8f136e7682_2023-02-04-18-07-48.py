@@ -25,7 +25,7 @@ from tatsu.util import re, generic_main  # noqa
 KEYWORDS = {}  # type: ignore
 
 
-class grammarinitBuffer(Buffer):
+class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
     def __init__(
         self,
         text,
@@ -37,7 +37,7 @@ class grammarinitBuffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(grammarinitBuffer, self).__init__(
+        super(grammarc21f969b5f03d33d43e04f8f136e7682Buffer, self).__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -49,7 +49,7 @@ class grammarinitBuffer(Buffer):
         )
 
 
-class grammarinitParser(Parser):
+class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
     def __init__(
         self,
         whitespace=re.compile('(?!.*)'),
@@ -61,12 +61,12 @@ class grammarinitParser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=grammarinitBuffer,
+        buffer_class=grammarc21f969b5f03d33d43e04f8f136e7682Buffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(grammarinitParser, self).__init__(
+        super(grammarc21f969b5f03d33d43e04f8f136e7682Parser, self).__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -5153,7 +5153,7 @@ class grammarinitParser(Parser):
 
     @tatsumasu()
     def _func_id_(self):  # noqa
-        self._identifier_alone_()
+        self._token('!!!')
 
     @tatsumasu('IdentifierAlone')
     def _identifier_alone_(self):  # noqa
@@ -5162,7 +5162,7 @@ class grammarinitParser(Parser):
         with self._group():
             with self._choice():
                 with self._option():
-                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*([A-Z0-9a-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*)*')
+                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*')
                     self.name_last_node('value')
                 with self._option():
                     self._token('`')
@@ -5176,7 +5176,7 @@ class grammarinitParser(Parser):
         )
 
 
-class grammarinitSemantics(object):
+class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
     def start(self, ast):  # noqa
         return ast
 
@@ -5846,7 +5846,7 @@ def main(filename, start=None, **kwargs):
     else:
         with open(filename) as f:
             text = f.read()
-    parser = grammarinitParser()
+    parser = grammarc21f969b5f03d33d43e04f8f136e7682Parser()
     return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
@@ -5854,7 +5854,7 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, grammarinitParser, name='grammarinit')
+    ast = generic_main(main, grammarc21f969b5f03d33d43e04f8f136e7682Parser, name='grammarc21f969b5f03d33d43e04f8f136e7682')
     print('AST:')
     print(ast)
     print()
@@ -5883,13 +5883,13 @@ class ModelBase(Node):
     pass
 
 
-class grammarinitModelBuilderSemantics(ModelBuilderSemantics):
+class grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics(ModelBuilderSemantics):
     def __init__(self, context=None, types=None):
         types = [
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(grammarinitModelBuilderSemantics, self).__init__(context=context, types=types)
+        super(grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
 class Start(ModelBase):

@@ -12,7 +12,7 @@ START = r"""
 @@left_recursion::True
 
 start::Start
-    = {shape:'shape\n'} {{separator_with_space} {hspace} vblock+:valid_block {separator_with_space}}+ {blank} $
+    = {shape:'shape\n' | material:'material\n'} {{separator_with_space} {hspace} vblock+:valid_block {separator_with_space}}+ {blank} $
     ;
 """
 LA = START + KEYWORDS + NUMBER + OPERATORS + MATRIX + BASE + TRIGONOMETRY + SHARED + ARITHMETIC

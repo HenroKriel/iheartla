@@ -25,7 +25,7 @@ from tatsu.util import re, generic_main  # noqa
 KEYWORDS = {}  # type: ignore
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
+class grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer(Buffer):
     def __init__(
         self,
         text,
@@ -37,7 +37,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(grammarc21f969b5f03d33d43e04f8f136e7682Buffer, self).__init__(
+        super(grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer, self).__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -49,7 +49,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
         )
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
+class grammar44ed8d1b8ffbe88f7e95ac188a51738dParser(Parser):
     def __init__(
         self,
         whitespace=re.compile('(?!.*)'),
@@ -61,12 +61,12 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=grammarc21f969b5f03d33d43e04f8f136e7682Buffer,
+        buffer_class=grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(grammarc21f969b5f03d33d43e04f8f136e7682Parser, self).__init__(
+        super(grammar44ed8d1b8ffbe88f7e95ac188a51738dParser, self).__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -85,33 +85,39 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
     def _start_(self):  # noqa
 
         def block0():
-            self._token('shape\n')
-            self.name_last_node('shape')
+            with self._choice():
+                with self._option():
+                    self._token('shape\n')
+                    self.name_last_node('shape')
+                with self._option():
+                    self._token('material\n')
+                    self.name_last_node('material')
+                self._error('no available options')
         self._closure(block0)
 
-        def block2():
+        def block4():
 
-            def block3():
+            def block5():
                 self._separator_with_space_()
-            self._closure(block3)
+            self._closure(block5)
 
-            def block4():
+            def block6():
                 self._hspace_()
-            self._closure(block4)
+            self._closure(block6)
             self._valid_block_()
             self.add_last_node_to_name('vblock')
 
-            def block6():
+            def block8():
                 self._separator_with_space_()
-            self._closure(block6)
-        self._positive_closure(block2)
+            self._closure(block8)
+        self._positive_closure(block4)
 
-        def block7():
+        def block9():
             self._blank_()
-        self._closure(block7)
+        self._closure(block9)
         self._check_eof()
         self.ast._define(
-            ['shape'],
+            ['material', 'shape'],
             ['vblock']
         )
 
@@ -5147,7 +5153,18 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
 
     @tatsumasu()
     def _func_id_(self):  # noqa
-        self._token('!!!')
+        with self._choice():
+            with self._option():
+                self._pattern('`R_x`')
+            with self._option():
+                self._pattern('`R_y`')
+            with self._option():
+                self._pattern('`R_z`')
+            with self._option():
+                self._pattern('`T`')
+            with self._option():
+                self._pattern('T')
+            self._error('no available options')
 
     @tatsumasu('IdentifierAlone')
     def _identifier_alone_(self):  # noqa
@@ -5170,7 +5187,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         )
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
+class grammar44ed8d1b8ffbe88f7e95ac188a51738dSemantics(object):
     def start(self, ast):  # noqa
         return ast
 
@@ -5840,7 +5857,7 @@ def main(filename, start=None, **kwargs):
     else:
         with open(filename) as f:
             text = f.read()
-    parser = grammarc21f969b5f03d33d43e04f8f136e7682Parser()
+    parser = grammar44ed8d1b8ffbe88f7e95ac188a51738dParser()
     return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
@@ -5848,7 +5865,7 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, grammarc21f969b5f03d33d43e04f8f136e7682Parser, name='grammarc21f969b5f03d33d43e04f8f136e7682')
+    ast = generic_main(main, grammar44ed8d1b8ffbe88f7e95ac188a51738dParser, name='grammar44ed8d1b8ffbe88f7e95ac188a51738d')
     print('AST:')
     print(ast)
     print()
@@ -5877,16 +5894,17 @@ class ModelBase(Node):
     pass
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics(ModelBuilderSemantics):
+class grammar44ed8d1b8ffbe88f7e95ac188a51738dModelBuilderSemantics(ModelBuilderSemantics):
     def __init__(self, context=None, types=None):
         types = [
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics, self).__init__(context=context, types=types)
+        super(grammar44ed8d1b8ffbe88f7e95ac188a51738dModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
 class Start(ModelBase):
+    material = None
     shape = None
     vblock = None
 

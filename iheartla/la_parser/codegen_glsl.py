@@ -650,14 +650,14 @@ class CodeGenGLSL(CodeGen):
 
 vec3 grad_{self.func_name}({self.func_name}_input _input) {{
     const float h = 0.001;
-    float dist = {self.func_name}(_input).d;
+    float dist = {self.func_name}(_input).D;
     {self.func_name}_input x_input = _input;
     {self.func_name}_input y_input = _input;
     {self.func_name}_input z_input = _input;
     x_input.p += vec3(h, 0, 0);
     y_input.p += vec3(0, h, 0);
     z_input.p += vec3(0, 0, h);
-    vec3 grad = vec3({self.func_name}(x_input).d, {self.func_name}(y_input).d, {self.func_name}(z_input).d);
+    vec3 grad = vec3({self.func_name}(x_input).D, {self.func_name}(y_input).D, {self.func_name}(z_input).D);
     return (grad - dist)/h;
 }}
 '''
@@ -681,6 +681,7 @@ vec3 grad_{self.func_name}({self.func_name}_input _input) {{
         main_content.append('    return 0;')
         main_content.append('}')
         self.code_frame.struct = self.trim_content(content)
+        self.code_frame.trimmed_params = [self.trim_content(param) for param in self.parameters]
         if not self.class_only and not self.code_only:
             self.code_frame.main = self.trim_content('\n'.join(main_content))
             self.code_frame.rand_data = self.trim_content('\n'.join(test_function))

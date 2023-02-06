@@ -25,7 +25,7 @@ from tatsu.util import re, generic_main  # noqa
 KEYWORDS = {}  # type: ignore
 
 
-class grammarinitBuffer(Buffer):
+class grammar740fc4ee4e00202ec1ba4dfd6590c20aBuffer(Buffer):
     def __init__(
         self,
         text,
@@ -37,7 +37,7 @@ class grammarinitBuffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(grammarinitBuffer, self).__init__(
+        super(grammar740fc4ee4e00202ec1ba4dfd6590c20aBuffer, self).__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -49,7 +49,7 @@ class grammarinitBuffer(Buffer):
         )
 
 
-class grammarinitParser(Parser):
+class grammar740fc4ee4e00202ec1ba4dfd6590c20aParser(Parser):
     def __init__(
         self,
         whitespace=re.compile('(?!.*)'),
@@ -61,12 +61,12 @@ class grammarinitParser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=grammarinitBuffer,
+        buffer_class=grammar740fc4ee4e00202ec1ba4dfd6590c20aBuffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(grammarinitParser, self).__init__(
+        super(grammar740fc4ee4e00202ec1ba4dfd6590c20aParser, self).__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -4121,7 +4121,14 @@ class grammarinitParser(Parser):
 
     @tatsumasu()
     def _builtin_operators_(self):  # noqa
-        self._predefined_built_operators_()
+        with self._choice():
+            with self._option():
+                self._cos_func_()
+            with self._option():
+                self._sin_func_()
+            with self._option():
+                self._predefined_built_operators_()
+            self._error('no available options')
 
     @tatsumasu('Statements')
     @nomemo
@@ -5153,7 +5160,18 @@ class grammarinitParser(Parser):
 
     @tatsumasu()
     def _func_id_(self):  # noqa
-        self._identifier_alone_()
+        with self._choice():
+            with self._option():
+                self._pattern('`R_x`')
+            with self._option():
+                self._pattern('`R_y`')
+            with self._option():
+                self._pattern('`R_z`')
+            with self._option():
+                self._pattern('`T`')
+            with self._option():
+                self._pattern('T')
+            self._error('no available options')
 
     @tatsumasu('IdentifierAlone')
     def _identifier_alone_(self):  # noqa
@@ -5162,7 +5180,7 @@ class grammarinitParser(Parser):
         with self._group():
             with self._choice():
                 with self._option():
-                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*([A-Z0-9a-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*)*')
+                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*')
                     self.name_last_node('value')
                 with self._option():
                     self._token('`')
@@ -5176,7 +5194,7 @@ class grammarinitParser(Parser):
         )
 
 
-class grammarinitSemantics(object):
+class grammar740fc4ee4e00202ec1ba4dfd6590c20aSemantics(object):
     def start(self, ast):  # noqa
         return ast
 
@@ -5846,7 +5864,7 @@ def main(filename, start=None, **kwargs):
     else:
         with open(filename) as f:
             text = f.read()
-    parser = grammarinitParser()
+    parser = grammar740fc4ee4e00202ec1ba4dfd6590c20aParser()
     return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
@@ -5854,7 +5872,7 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, grammarinitParser, name='grammarinit')
+    ast = generic_main(main, grammar740fc4ee4e00202ec1ba4dfd6590c20aParser, name='grammar740fc4ee4e00202ec1ba4dfd6590c20a')
     print('AST:')
     print(ast)
     print()
@@ -5883,13 +5901,13 @@ class ModelBase(Node):
     pass
 
 
-class grammarinitModelBuilderSemantics(ModelBuilderSemantics):
+class grammar740fc4ee4e00202ec1ba4dfd6590c20aModelBuilderSemantics(ModelBuilderSemantics):
     def __init__(self, context=None, types=None):
         types = [
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(grammarinitModelBuilderSemantics, self).__init__(context=context, types=types)
+        super(grammar740fc4ee4e00202ec1ba4dfd6590c20aModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
 class Start(ModelBase):

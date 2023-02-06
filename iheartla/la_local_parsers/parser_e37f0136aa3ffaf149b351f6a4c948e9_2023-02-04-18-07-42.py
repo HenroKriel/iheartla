@@ -85,33 +85,39 @@ class grammare37f0136aa3ffaf149b351f6a4c948e9Parser(Parser):
     def _start_(self):  # noqa
 
         def block0():
-            self._token('shape\n')
-            self.name_last_node('shape')
+            with self._choice():
+                with self._option():
+                    self._token('shape\n')
+                    self.name_last_node('shape')
+                with self._option():
+                    self._token('material\n')
+                    self.name_last_node('material')
+                self._error('no available options')
         self._closure(block0)
 
-        def block2():
+        def block4():
 
-            def block3():
+            def block5():
                 self._separator_with_space_()
-            self._closure(block3)
+            self._closure(block5)
 
-            def block4():
+            def block6():
                 self._hspace_()
-            self._closure(block4)
+            self._closure(block6)
             self._valid_block_()
             self.add_last_node_to_name('vblock')
 
-            def block6():
+            def block8():
                 self._separator_with_space_()
-            self._closure(block6)
-        self._positive_closure(block2)
+            self._closure(block8)
+        self._positive_closure(block4)
 
-        def block7():
+        def block9():
             self._blank_()
-        self._closure(block7)
+        self._closure(block9)
         self._check_eof()
         self.ast._define(
-            ['shape'],
+            ['material', 'shape'],
             ['vblock']
         )
 
@@ -5887,6 +5893,7 @@ class grammare37f0136aa3ffaf149b351f6a4c948e9ModelBuilderSemantics(ModelBuilderS
 
 
 class Start(ModelBase):
+    material = None
     shape = None
     vblock = None
 

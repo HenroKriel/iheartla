@@ -494,6 +494,8 @@ def compile_la_content(la_content,
     # except:
     #     ret = str(sys.exc_info()[0])
     # finally:
+    if ParserTypeEnum.GLSL in ret:
+        json.trimmed_params = ret[ParserTypeEnum.GLSL].trimmed_params.copy()
     if get_json:
         if get_vars:
             return ret, json, var_data

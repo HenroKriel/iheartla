@@ -41,7 +41,7 @@ class DependenceData(object):
 
 
 class EquationData(object):
-    def __init__(self, name='', parameters=[], definition=[], dependence=[], symtable={}, desc_dict={}, la_content='', func_data_dict={}, expr_dict={}, opt_syms=[], shape=False):
+    def __init__(self, name='', parameters=[], definition=[], dependence=[], symtable={}, desc_dict={}, la_content='', func_data_dict={}, expr_dict={}, opt_syms=[], shape=False, material=False):
         self.name = name
         self.undescribed_list = []
         self.parameters = parameters  # parameters for source file
@@ -55,6 +55,7 @@ class EquationData(object):
         self.opt_syms = opt_syms
         self.expr_dict = {}
         self.shape = shape
+        self.material = material
         # for key in self.desc_dict.keys():
         #     self.desc_dict[key] = self.desc_dict[key].replace('"', '\"')
         # remove subscript in symbol
@@ -316,7 +317,7 @@ class TypeWalker(NodeWalker):
                             copy.deepcopy(self.desc_dict), self.la_content,
                             copy.deepcopy(self.func_data_dict),
                             copy.deepcopy(self.expr_dict),
-                            copy.deepcopy(self.opt_syms), self.shape)
+                            copy.deepcopy(self.opt_syms), self.shape, self.material)
 
     def is_inside_sum(self):
         return len(self.sum_subs) > 0
@@ -543,8 +544,11 @@ class TypeWalker(NodeWalker):
 
     def walk_Start(self, node, **kwargs):
         self.shape = False
+        self.material = False
         if node.shape:
             self.shape = True
+        if node.material:
+            self.material = True
         self.main_param.symtable = self.symtable
         self.pre_walk = True if 'pre_walk' in kwargs else False
         # self.symtable.clear()
