@@ -3844,9 +3844,71 @@ class grammardefaultParser(Parser):
                 self.name_last_node('type')
                 self._sup_integer_()
                 self.name_last_node('id1')
+            with self._option():
+                with self._group():
+                    self._token('[')
+
+                    def block17():
+                        self._hspace_()
+                    self._closure(block17)
+                    self._expression_()
+                    self.name_last_node('left')
+
+                    def block19():
+                        self._hspace_()
+                    self._closure(block19)
+                    self._token(',')
+
+                    def block20():
+                        self._hspace_()
+                    self._closure(block20)
+                    self._expression_()
+                    self.name_last_node('right')
+
+                    def block22():
+                        self._hspace_()
+                    self._closure(block22)
+                    self._token(']')
+
+                    def block24():
+
+                        def block25():
+                            self._hspace_()
+                        self._closure(block25)
+                        self._token('x')
+
+                        def block26():
+                            self._hspace_()
+                        self._closure(block26)
+                        self._token('[')
+
+                        def block27():
+                            self._hspace_()
+                        self._closure(block27)
+                        self._expression_()
+                        self.name_last_node('left')
+
+                        def block29():
+                            self._hspace_()
+                        self._closure(block29)
+                        self._token(',')
+
+                        def block30():
+                            self._hspace_()
+                        self._closure(block30)
+                        self._expression_()
+                        self.name_last_node('right')
+
+                        def block32():
+                            self._hspace_()
+                        self._closure(block32)
+                        self._token(']')
+                    self._positive_closure(block24)
+                    self.name_last_node('rest')
+                self.name_last_node('bounds')
             self._error('no available options')
         self.ast._define(
-            ['id1', 'type'],
+            ['bounds', 'id1', 'left', 'rest', 'right', 'type'],
             []
         )
 
@@ -3867,7 +3929,7 @@ class grammardefaultParser(Parser):
                     def block2():
                         self._hspace_()
                     self._closure(block2)
-                    self._number_()
+                    self._expression_()
                     self.name_last_node('left')
 
                     def block4():
@@ -3878,7 +3940,7 @@ class grammardefaultParser(Parser):
                     def block5():
                         self._hspace_()
                     self._closure(block5)
-                    self._number_()
+                    self._expression_()
                     self.name_last_node('right')
 
                     def block7():
@@ -6401,7 +6463,11 @@ class MatrixType(ModelBase):
 
 
 class VectorType(ModelBase):
+    bounds = None
     id1 = None
+    left = None
+    rest = None
+    right = None
     type = None
 
 

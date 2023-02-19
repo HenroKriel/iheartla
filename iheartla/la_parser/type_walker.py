@@ -1010,18 +1010,39 @@ class TypeWalker(NodeWalker):
                 element_type = ScalarType(is_int=True)
         else:
             element_type = ScalarType()
-        id1_info = self.walk(node.id1, **kwargs)
         rows_ir = None
-        single_node = self.get_single_factor(id1_info.ir)
-        if single_node is not None:
-            ir_node.id1 = single_node
+        if node.id1:
+            id1_info = self.walk(node.id1, **kwargs)
+            single_node = self.get_single_factor(id1_info.ir)
+            if single_node is not None:
+                ir_node.id1 = single_node
+            else:
+                self.dependency_set.update(id1_info.symbols)
+                ir_node.id1 = id1_info.ir
+                rows_ir = id1_info.ir
+                self.logger.debug("Param matrix, row is: {}".format(id1_info.content))
+            id1 = id1_info.content
+        #nodes with bounds probably don't have id1
         else:
-            self.dependency_set.update(id1_info.symbols)
-            ir_node.id1 = id1_info.ir
-            rows_ir = id1_info.ir
-            self.logger.debug("Param matrix, row is: {}".format(id1_info.content))
-        id1 = id1_info.content
+            id1 = len(node.left)
+            node_type = ScalarType(is_int=True, is_constant=True)
+            node_info = NodeInfo(node_type, content=int(id1))
+            id1_node = IntegerNode(parse_info=node.parseinfo)
+            id1_node.value = int(id1)
+            id1_node.la_type = node_info.la_type
+            ir_node.id1 = id1_node
         la_type = VectorType(rows=id1, element_type=element_type, rows_ir=rows_ir)
+        la_type.has_bounds = False
+        if node.bounds:
+            la_type.has_bounds = True
+            bounds = []
+            for (l, r) in zip(node.left, node.right):
+                left_info = self.walk(l, **kwargs)
+                right_info = self.walk(r, **kwargs)
+                left_val = -left_info.content if l.sign else left_info.content
+                right_val = -right_info.content if r.sign else right_info.content
+                bounds.append((left_val, right_val))
+            la_type.bounds = bounds
         # if ir_node.id1.is_node(IRNodeType.Id) and ir_node.id1.contain_subscript():
         if self.dyn_dim:
             # assert len(ir_node.id1.subs) == 1, get_err_msg_info(ir_node.id1.parse_info, "Invalid dimension for vector")
@@ -1035,13 +1056,13 @@ class TypeWalker(NodeWalker):
         if node.z:
             la_type = ScalarType(is_int=True)
             ir_node.is_int = True
-        la_type.bounds = False
+        la_type.has_bounds = False
         if node.bounds:
-            la_type.bounds = True
+            la_type.has_bounds = True
             left_info = self.walk(node.left, **kwargs)
             right_info = self.walk(node.right, **kwargs)
-            la_type.left_bound = left_info.content
-            la_type.right_bound = right_info.content
+            la_type.left_bound = -left_info.content if node.left.sign else left_info.content
+            la_type.right_bound = -right_info.content if node.right.sign else right_info.content
         ir_node.la_type = la_type
         return ir_node
 
