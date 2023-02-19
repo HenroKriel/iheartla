@@ -25,7 +25,7 @@ from tatsu.util import re, generic_main  # noqa
 KEYWORDS = {}  # type: ignore
 
 
-class grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer(Buffer):
+class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
     def __init__(
         self,
         text,
@@ -37,7 +37,7 @@ class grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer, self).__init__(
+        super(grammarc21f969b5f03d33d43e04f8f136e7682Buffer, self).__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -49,7 +49,7 @@ class grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer(Buffer):
         )
 
 
-class grammar44ed8d1b8ffbe88f7e95ac188a51738dParser(Parser):
+class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
     def __init__(
         self,
         whitespace=re.compile('(?!.*)'),
@@ -61,12 +61,12 @@ class grammar44ed8d1b8ffbe88f7e95ac188a51738dParser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=grammar44ed8d1b8ffbe88f7e95ac188a51738dBuffer,
+        buffer_class=grammarc21f969b5f03d33d43e04f8f136e7682Buffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(grammar44ed8d1b8ffbe88f7e95ac188a51738dParser, self).__init__(
+        super(grammarc21f969b5f03d33d43e04f8f136e7682Parser, self).__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -3856,9 +3856,35 @@ class grammar44ed8d1b8ffbe88f7e95ac188a51738dParser(Parser):
             with self._option():
                 self._pattern('ℤ')
                 self.name_last_node('z')
+            with self._option():
+                with self._group():
+                    self._token('[')
+
+                    def block2():
+                        self._hspace_()
+                    self._closure(block2)
+                    self._number_()
+                    self.name_last_node('left')
+
+                    def block4():
+                        self._hspace_()
+                    self._closure(block4)
+                    self._token(',')
+
+                    def block5():
+                        self._hspace_()
+                    self._closure(block5)
+                    self._number_()
+                    self.name_last_node('right')
+
+                    def block7():
+                        self._hspace_()
+                    self._closure(block7)
+                    self._token(']')
+                self.name_last_node('bounds')
             self._error('no available options')
         self.ast._define(
-            ['z'],
+            ['bounds', 'left', 'right', 'z'],
             []
         )
 
@@ -5153,18 +5179,7 @@ class grammar44ed8d1b8ffbe88f7e95ac188a51738dParser(Parser):
 
     @tatsumasu()
     def _func_id_(self):  # noqa
-        with self._choice():
-            with self._option():
-                self._pattern('`R_x`')
-            with self._option():
-                self._pattern('`R_y`')
-            with self._option():
-                self._pattern('`R_z`')
-            with self._option():
-                self._pattern('`T`')
-            with self._option():
-                self._pattern('T')
-            self._error('no available options')
+        self._token('!!!')
 
     @tatsumasu('IdentifierAlone')
     def _identifier_alone_(self):  # noqa
@@ -5187,7 +5202,7 @@ class grammar44ed8d1b8ffbe88f7e95ac188a51738dParser(Parser):
         )
 
 
-class grammar44ed8d1b8ffbe88f7e95ac188a51738dSemantics(object):
+class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
     def start(self, ast):  # noqa
         return ast
 
@@ -5857,7 +5872,7 @@ def main(filename, start=None, **kwargs):
     else:
         with open(filename) as f:
             text = f.read()
-    parser = grammar44ed8d1b8ffbe88f7e95ac188a51738dParser()
+    parser = grammarc21f969b5f03d33d43e04f8f136e7682Parser()
     return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
@@ -5865,7 +5880,7 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, grammar44ed8d1b8ffbe88f7e95ac188a51738dParser, name='grammar44ed8d1b8ffbe88f7e95ac188a51738d')
+    ast = generic_main(main, grammarc21f969b5f03d33d43e04f8f136e7682Parser, name='grammarc21f969b5f03d33d43e04f8f136e7682')
     print('AST:')
     print(ast)
     print()
@@ -5894,13 +5909,13 @@ class ModelBase(Node):
     pass
 
 
-class grammar44ed8d1b8ffbe88f7e95ac188a51738dModelBuilderSemantics(ModelBuilderSemantics):
+class grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics(ModelBuilderSemantics):
     def __init__(self, context=None, types=None):
         types = [
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(grammar44ed8d1b8ffbe88f7e95ac188a51738dModelBuilderSemantics, self).__init__(context=context, types=types)
+        super(grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
 class Start(ModelBase):
@@ -6314,6 +6329,9 @@ class VectorType(ModelBase):
 
 
 class ScalarType(ModelBase):
+    bounds = None
+    left = None
+    right = None
     z = None
 
 

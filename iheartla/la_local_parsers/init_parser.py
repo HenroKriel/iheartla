@@ -3856,9 +3856,35 @@ class grammarinitParser(Parser):
             with self._option():
                 self._pattern('ℤ')
                 self.name_last_node('z')
+            with self._option():
+                with self._group():
+                    self._token('[')
+
+                    def block2():
+                        self._hspace_()
+                    self._closure(block2)
+                    self._number_()
+                    self.name_last_node('left')
+
+                    def block4():
+                        self._hspace_()
+                    self._closure(block4)
+                    self._token(',')
+
+                    def block5():
+                        self._hspace_()
+                    self._closure(block5)
+                    self._number_()
+                    self.name_last_node('right')
+
+                    def block7():
+                        self._hspace_()
+                    self._closure(block7)
+                    self._token(']')
+                self.name_last_node('bounds')
             self._error('no available options')
         self.ast._define(
-            ['z'],
+            ['bounds', 'left', 'right', 'z'],
             []
         )
 
@@ -6303,6 +6329,9 @@ class VectorType(ModelBase):
 
 
 class ScalarType(ModelBase):
+    bounds = None
+    left = None
+    right = None
     z = None
 
 

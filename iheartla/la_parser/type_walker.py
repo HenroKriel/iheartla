@@ -1035,6 +1035,13 @@ class TypeWalker(NodeWalker):
         if node.z:
             la_type = ScalarType(is_int=True)
             ir_node.is_int = True
+        la_type.bounds = False
+        if node.bounds:
+            la_type.bounds = True
+            left_info = self.walk(node.left, **kwargs)
+            right_info = self.walk(node.right, **kwargs)
+            la_type.left_bound = left_info.content
+            la_type.right_bound = right_info.content
         ir_node.la_type = la_type
         return ir_node
 

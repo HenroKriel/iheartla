@@ -40,6 +40,7 @@ scalar_type::ScalarType
     = /scalar/
     | /ℝ/
     | z:/ℤ/
+    | bounds:('[' {hspace} left:number {hspace} ',' {hspace} right:number {hspace} ']')
     ;
 
 set_type::SetType
