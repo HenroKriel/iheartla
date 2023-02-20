@@ -3901,10 +3901,30 @@ class grammarinitParser(Parser):
                         self._token(']')
                     self._positive_closure(block24)
                     self.name_last_node('rest')
+
+                    def block34():
+
+                        def block35():
+                            self._hspace_()
+                        self._closure(block35)
+                        self._token('default')
+
+                        def block36():
+                            self._hspace_()
+                        self._closure(block36)
+                        self._token('=')
+
+                        def block37():
+                            self._hspace_()
+                        self._closure(block37)
+                        self._vector_()
+                        self.name_last_node('vec')
+                    self._closure(block34)
+                    self.name_last_node('default')
                 self.name_last_node('bounds')
             self._error('no available options')
         self.ast._define(
-            ['bounds', 'id1', 'left', 'rest', 'right', 'type'],
+            ['bounds', 'default', 'id1', 'left', 'rest', 'right', 'type', 'vec'],
             []
         )
 
@@ -3943,10 +3963,30 @@ class grammarinitParser(Parser):
                         self._hspace_()
                     self._closure(block7)
                     self._token(']')
+
+                    def block9():
+
+                        def block10():
+                            self._hspace_()
+                        self._closure(block10)
+                        self._token('default')
+
+                        def block11():
+                            self._hspace_()
+                        self._closure(block11)
+                        self._token('=')
+
+                        def block12():
+                            self._hspace_()
+                        self._closure(block12)
+                        self._expression_()
+                        self.name_last_node('expr')
+                    self._closure(block9)
+                    self.name_last_node('default')
                 self.name_last_node('bounds')
             self._error('no available options')
         self.ast._define(
-            ['bounds', 'left', 'right', 'z'],
+            ['bounds', 'default', 'expr', 'left', 'right', 'z'],
             []
         )
 
@@ -6387,15 +6427,19 @@ class MatrixType(ModelBase):
 
 class VectorType(ModelBase):
     bounds = None
+    default = None
     id1 = None
     left = None
     rest = None
     right = None
     type = None
+    vec = None
 
 
 class ScalarType(ModelBase):
     bounds = None
+    default = None
+    expr = None
     left = None
     right = None
     z = None

@@ -1043,6 +1043,12 @@ class TypeWalker(NodeWalker):
                 right_val = -right_info.content if r.sign else right_info.content
                 bounds.append((left_val, right_val))
             la_type.bounds = bounds
+
+        la_type.has_default = False
+        if node.default:
+            la_type.has_default = True
+            def_info = self.walk(node.vec, **kwargs)
+            la_type.defaults = def_info.content_list
         # if ir_node.id1.is_node(IRNodeType.Id) and ir_node.id1.contain_subscript():
         if self.dyn_dim:
             # assert len(ir_node.id1.subs) == 1, get_err_msg_info(ir_node.id1.parse_info, "Invalid dimension for vector")
@@ -1057,12 +1063,17 @@ class TypeWalker(NodeWalker):
             la_type = ScalarType(is_int=True)
             ir_node.is_int = True
         la_type.has_bounds = False
+        la_type.has_default = False
         if node.bounds:
             la_type.has_bounds = True
             left_info = self.walk(node.left, **kwargs)
             right_info = self.walk(node.right, **kwargs)
             la_type.left_bound = -left_info.content if node.left.sign else left_info.content
             la_type.right_bound = -right_info.content if node.right.sign else right_info.content
+            if node.default:
+                la_type.has_default = True
+                def_info = self.walk(node.expr, **kwargs)
+                la_type.default = -def_info.content if node.expr.sign else def_info.content
         ir_node.la_type = la_type
         return ir_node
 
@@ -2706,7 +2717,7 @@ class TypeWalker(NodeWalker):
         content = self.walk(node.m, **kwargs)
         if node.e:
             content += self.walk(node.e, **kwargs)
-        return content
+        return float(content)
 
     def walk_MultiCondExpr(self, node, **kwargs):
         if LHS in kwargs:
@@ -2838,8 +2849,10 @@ class TypeWalker(NodeWalker):
         symbols = set()
         ir_node = VectorNode(parse_info=node.parseinfo, raw_text=node.text)
         dim_list = []
+        content_list = []
         for exp in node.exp:
             exp_info = self.walk(exp, **kwargs)
+            content_list.append(-exp_info.content if exp_info.ir.sign else exp_info.content)
             assert exp_info.la_type.is_scalar() or exp_info.la_type.is_vector(), get_err_msg_info(node.parseinfo, "Item in vector must be scalar or vector")
             ir_node.items.append(exp_info.ir)
             if exp_info.la_type.is_vector():
@@ -2849,6 +2862,7 @@ class TypeWalker(NodeWalker):
             symbols = symbols.union(exp_info.symbols)
         ir_node.la_type = VectorType(rows=self.get_sum_value(dim_list))
         node_info = NodeInfo(ir=ir_node, la_type=ir_node.la_type, symbols=symbols)
+        node_info.content_list = content_list
         if LHS in kwargs:
             lhs = kwargs[LHS]
             new_id = self.generate_var_name(lhs)
