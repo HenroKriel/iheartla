@@ -170,6 +170,8 @@ factor::Factor
     op:operations
     | sub:subexpression
     | sub:max_operator
+    | sub:min_operator
+    | sub:floor_operator
     | nm:number_matrix
     | id0:identifier
     | num:number

@@ -7,6 +7,7 @@ BUILTIN_KEYWORDS
     | SUM
     | MIN
     | MAX
+    | FLOOR
     | ARGMIN
     | ARGMAX
     | INT
@@ -45,6 +46,7 @@ GIVEN = /given/;
 SUM = /sum/ | /∑/;
 MIN = /min/;
 MAX = /max/;
+FLOOR = /floor/;
 ARGMIN = /argmin/;
 ARGMAX = /argmax/;
 INT = /int/;

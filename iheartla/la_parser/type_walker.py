@@ -1781,6 +1781,55 @@ class TypeWalker(NodeWalker):
         ret_info.ir = ir_node
         return ret_info
 
+    def walk_MinList(self, node, **kwargs):
+        left_info = self.walk(node.left, **kwargs)
+        if node.rest:
+            rest_info = self.walk(node.rest, **kwargs)
+            ret_type, need_cast = self.type_inference(TypeInferenceEnum.INF_ADD, left_info, rest_info)
+            ret_info = NodeInfo(ret_type, symbols=left_info.symbols.union(rest_info.symbols))
+            ir_node = MinListNode(left_info.ir, rest_info.ir, parse_info=node.parseinfo)
+            ir_node.la_type = ret_type
+            left_info.ir.set_parent(ir_node)
+            rest_info.ir.set_parent(ir_node)
+            ret_info.ir = ir_node
+        else:
+            ret_type = left_info.ir.la_type
+            ret_info = NodeInfo(ret_type, symbols=left_info.symbols)
+            ir_node = MinListNode(left_info.ir, None, parse_info=node.parseinfo)
+            ir_node.la_type = ret_type
+            left_info.ir.set_parent(ir_node)
+            ret_info.ir = ir_node
+        return ret_info
+            
+
+    def walk_Min(self, node, **kwargs):
+        left_info = self.walk(node.left, **kwargs)
+        rest_info = self.walk(node.rest, **kwargs)
+        ret_type, need_cast = self.type_inference(TypeInferenceEnum.INF_ADD, left_info, rest_info)
+        ret_info = NodeInfo(ret_type, symbols=left_info.symbols.union(rest_info.symbols))
+        ir_node = MinNode(left_info.ir, rest_info.ir, parse_info=node.parseinfo)
+        ir_node.la_type = ret_type
+        left_info.ir.set_parent(ir_node)
+        rest_info.ir.set_parent(ir_node)
+        ret_info.ir = ir_node
+        return ret_info
+
+    def walk_Floor(self, node, **kwargs):
+        exp_info = self.walk(node.exp, **kwargs)
+        exp_type = exp_info.ir.la_type
+        if exp_type.is_scalar():
+            ret_type = ScalarType()
+        elif exp_type.is_vector():
+            ret_type = VectorType(rows=exp_type.rows)
+        else:
+            raise Exception("Floor input not scalar or vector")
+        ret_info = NodeInfo(ret_type, symbols=exp_info.symbols)
+        ir_node = FloorNode(exp_info.ir, parse_info=node.parseinfo)
+        ir_node.la_type = ret_type
+        exp_info.ir.set_parent(ir_node)
+        ret_info.ir = ir_node
+        return ret_info
+
     def walk_MultiCond(self, node, **kwargs):
         conds_list = []
         if node.m_cond:

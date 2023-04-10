@@ -58,6 +58,9 @@ class IRNodeType(Enum):
     PseudoInverse = 222
     Max = 223
     MaxList = 224
+    Min = 225
+    MinList = 226
+    Floor = 227
     # matrix
     Matrix = 300
     MatrixRows = 301
@@ -580,6 +583,52 @@ class MaxListNode(ExprNode):
             child_node = self.left.get_child(node_type)
             if child_node is None:
                 child_node = self.rest.get_child(node_type)
+        return child_node
+
+class MinNode(ExprNode):
+    def __init__(self, left=None, rest=None, parse_info=None, raw_text=None):
+        super().__init__(IRNodeType.Min, parse_info=parse_info, raw_text=raw_text)
+        self.left = left
+        self.rest = rest
+
+    def get_child(self, node_type):
+        if self.left.is_node(node_type):
+            child_node = self.left
+        elif self.rest.is_node(node_type):
+            child_node = self.rest
+        else:
+            child_node = self.left.get_child(node_type)
+            if child_node is None:
+                child_node = self.rest.get_child(node_type)
+        return child_node
+
+class MinListNode(ExprNode):
+    def __init__(self, left=None, rest=None, parse_info=None, raw_text=None):
+        super().__init__(IRNodeType.MinList, parse_info=parse_info, raw_text=raw_text)
+        self.left = left
+        self.rest = rest
+
+    def get_child(self, node_type):
+        if self.left.is_node(node_type):
+            child_node = self.left
+        elif self.rest.is_node(node_type):
+            child_node = self.rest
+        else:
+            child_node = self.left.get_child(node_type)
+            if child_node is None:
+                child_node = self.rest.get_child(node_type)
+        return child_node
+
+class FloorNode(ExprNode):
+    def __init__(self, exp=None, parse_info=None, raw_text=None):
+        super().__init__(IRNodeType.Floor, parse_info=parse_info, raw_text=raw_text)
+        self.exp = exp
+
+    def get_child(self, node_type):
+        if self.exp.is_node(node_type):
+            child_node = self.exp
+        else:
+            child_node = self.exp.get_child(node_type)
         return child_node
 
 class MulOpType(Enum):

@@ -842,3 +842,22 @@ class CodeGenLatex(CodeGen):
         left_content = self.visit(node.left, **kwargs)
         rest_content  = self.visit(node.rest, **kwargs)
         return "max({}, {})".format(left_content, rest_content)
+
+    def visit_minlist(self, node, **kwargs):
+        if node.rest:
+            left_content = self.visit(node.left, **kwargs)
+            rest_content = self.visit(node.rest, **kwargs)
+            return "{}, {}".format(left_content, rest_content)
+        else:
+            left_content = self.visit(node.left, **kwargs)
+            return "{}".format(left_content)
+
+    def visit_min(self, node, **kwargs):
+        left_content = self.visit(node.left, **kwargs)
+        rest_content  = self.visit(node.rest, **kwargs)
+        return "min({}, {})".format(left_content, rest_content)
+
+    def visit_floor(self, node, **kwargs):
+        exp_info = self.visit(node.exp, **kwargs)
+        exp_info = "floor({})".format(exp_info)
+        return exp_info

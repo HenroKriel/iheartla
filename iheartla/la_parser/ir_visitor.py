@@ -344,6 +344,9 @@ class IRVisitor(object):
             IRNodeType.DotProduct: "visit_dot_product",
             IRNodeType.Max: "visit_max",
             IRNodeType.MaxList: "visit_maxlist",
+            IRNodeType.Min: "visit_min",
+            IRNodeType.MinList: "visit_minlist",
+            IRNodeType.Floor: "visit_floor",
             # matrix
             IRNodeType.Matrix: "visit_matrix",
             IRNodeType.MatrixRows: "visit_matrix_rows",

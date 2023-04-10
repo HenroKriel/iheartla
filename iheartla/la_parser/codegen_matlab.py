@@ -1741,4 +1741,27 @@ class CodeGenMatlab(CodeGen):
         left_info.pre_list += rest_info.pre_list
         return left_info
 
+    def visit_minlist(self, node, **kwargs):
+        if node.rest:
+            left_info = self.visit(node.left, **kwargs)
+            rest_info = self.visit(node.rest, **kwargs)
+            left_info.content = "{}, {}".format(left_info.content, rest_info.content)
+            left_info.pre_list += rest_info.pre_list
+        else:
+            left_info = self.visit(node.left, **kwargs)
+            left_info.content = "{}".format(left_info.content)
+        return left_info
+
+    def visit_min(self, node, **kwargs):
+        left_info = self.visit(node.left, **kwargs)
+        rest_info  = self.visit(node.rest, **kwargs)
+        left_info.content = "min([{}, {}])".format(left_info.content, rest_info.content)
+        left_info.pre_list += rest_info.pre_list
+        return left_info
+
+    def visit_floor(self, node, **kwargs):
+        exp_info = self.visit(node.exp, **kwargs)
+        exp_info.content = "floor({})".format(exp_info.content)
+        return exp_info
+
     ###################################################################

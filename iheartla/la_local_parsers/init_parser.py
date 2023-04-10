@@ -137,6 +137,8 @@ class grammarinitParser(Parser):
             with self._option():
                 self._MAX_()
             with self._option():
+                self._FLOOR_()
+            with self._option():
                 self._ARGMIN_()
             with self._option():
                 self._ARGMAX_()
@@ -248,6 +250,10 @@ class grammarinitParser(Parser):
     @tatsumasu()
     def _MAX_(self):  # noqa
         self._pattern('max')
+
+    @tatsumasu()
+    def _FLOOR_(self):  # noqa
+        self._pattern('floor')
 
     @tatsumasu()
     def _ARGMIN_(self):  # noqa
@@ -928,6 +934,83 @@ class grammarinitParser(Parser):
             self._error('no available options')
         self.ast._define(
             ['left', 'rest'],
+            []
+        )
+
+    @tatsumasu('Min')
+    def _min_operator_(self):  # noqa
+        self._MIN_()
+        self._token('(')
+
+        def block0():
+            self._hspace_()
+        self._closure(block0)
+        self._expression_()
+        self.name_last_node('left')
+        self._min_list_()
+        self.name_last_node('rest')
+
+        def block3():
+            self._hspace_()
+        self._closure(block3)
+        self._token(')')
+        self.ast._define(
+            ['left', 'rest'],
+            []
+        )
+
+    @tatsumasu('MinList')
+    def _min_list_(self):  # noqa
+        with self._choice():
+            with self._option():
+
+                def block0():
+                    self._hspace_()
+                self._closure(block0)
+                self._token(',')
+
+                def block1():
+                    self._hspace_()
+                self._closure(block1)
+                self._expression_()
+                self.name_last_node('left')
+                self._min_list_()
+                self.name_last_node('rest')
+            with self._option():
+
+                def block4():
+                    self._hspace_()
+                self._closure(block4)
+                self._token(',')
+
+                def block5():
+                    self._hspace_()
+                self._closure(block5)
+                self._expression_()
+                self.name_last_node('left')
+            self._error('no available options')
+        self.ast._define(
+            ['left', 'rest'],
+            []
+        )
+
+    @tatsumasu('Floor')
+    def _floor_operator_(self):  # noqa
+        self._FLOOR_()
+        self._token('(')
+
+        def block0():
+            self._hspace_()
+        self._closure(block0)
+        self._expression_()
+        self.name_last_node('exp')
+
+        def block2():
+            self._hspace_()
+        self._closure(block2)
+        self._token(')')
+        self.ast._define(
+            ['exp'],
             []
         )
 
@@ -4639,6 +4722,12 @@ class grammarinitParser(Parser):
                 self._max_operator_()
                 self.name_last_node('sub')
             with self._option():
+                self._min_operator_()
+                self.name_last_node('sub')
+            with self._option():
+                self._floor_operator_()
+                self.name_last_node('sub')
+            with self._option():
                 self._number_matrix_()
                 self.name_last_node('nm')
             with self._option():
@@ -5359,6 +5448,9 @@ class grammarinitSemantics(object):
     def MAX(self, ast):  # noqa
         return ast
 
+    def FLOOR(self, ast):  # noqa
+        return ast
+
     def ARGMIN(self, ast):  # noqa
         return ast
 
@@ -5528,6 +5620,15 @@ class grammarinitSemantics(object):
         return ast
 
     def max_list(self, ast):  # noqa
+        return ast
+
+    def min_operator(self, ast):  # noqa
+        return ast
+
+    def min_list(self, ast):  # noqa
+        return ast
+
+    def floor_operator(self, ast):  # noqa
         return ast
 
     def multi_cond(self, ast):  # noqa
@@ -6111,6 +6212,20 @@ class Max(ModelBase):
 class MaxList(ModelBase):
     left = None
     rest = None
+
+
+class Min(ModelBase):
+    left = None
+    rest = None
+
+
+class MinList(ModelBase):
+    left = None
+    rest = None
+
+
+class Floor(ModelBase):
+    exp = None
 
 
 class MultiCond(ModelBase):

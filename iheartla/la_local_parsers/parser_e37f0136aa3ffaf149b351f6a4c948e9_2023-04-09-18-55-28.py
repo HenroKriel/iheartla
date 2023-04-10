@@ -25,7 +25,7 @@ from tatsu.util import re, generic_main  # noqa
 KEYWORDS = {}  # type: ignore
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
+class grammare37f0136aa3ffaf149b351f6a4c948e9Buffer(Buffer):
     def __init__(
         self,
         text,
@@ -37,7 +37,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(grammarc21f969b5f03d33d43e04f8f136e7682Buffer, self).__init__(
+        super(grammare37f0136aa3ffaf149b351f6a4c948e9Buffer, self).__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -49,7 +49,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
         )
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
+class grammare37f0136aa3ffaf149b351f6a4c948e9Parser(Parser):
     def __init__(
         self,
         whitespace=re.compile('(?!.*)'),
@@ -61,12 +61,12 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=grammarc21f969b5f03d33d43e04f8f136e7682Buffer,
+        buffer_class=grammare37f0136aa3ffaf149b351f6a4c948e9Buffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(grammarc21f969b5f03d33d43e04f8f136e7682Parser, self).__init__(
+        super(grammare37f0136aa3ffaf149b351f6a4c948e9Parser, self).__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -136,6 +136,8 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
                 self._MIN_()
             with self._option():
                 self._MAX_()
+            with self._option():
+                self._FLOOR_()
             with self._option():
                 self._ARGMIN_()
             with self._option():
@@ -248,6 +250,10 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
     @tatsumasu()
     def _MAX_(self):  # noqa
         self._pattern('max')
+
+    @tatsumasu()
+    def _FLOOR_(self):  # noqa
+        self._pattern('floor')
 
     @tatsumasu()
     def _ARGMIN_(self):  # noqa
@@ -928,6 +934,83 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
             self._error('no available options')
         self.ast._define(
             ['left', 'rest'],
+            []
+        )
+
+    @tatsumasu('Min')
+    def _min_operator_(self):  # noqa
+        self._MIN_()
+        self._token('(')
+
+        def block0():
+            self._hspace_()
+        self._closure(block0)
+        self._expression_()
+        self.name_last_node('left')
+        self._min_list_()
+        self.name_last_node('rest')
+
+        def block3():
+            self._hspace_()
+        self._closure(block3)
+        self._token(')')
+        self.ast._define(
+            ['left', 'rest'],
+            []
+        )
+
+    @tatsumasu('MinList')
+    def _min_list_(self):  # noqa
+        with self._choice():
+            with self._option():
+
+                def block0():
+                    self._hspace_()
+                self._closure(block0)
+                self._token(',')
+
+                def block1():
+                    self._hspace_()
+                self._closure(block1)
+                self._expression_()
+                self.name_last_node('left')
+                self._min_list_()
+                self.name_last_node('rest')
+            with self._option():
+
+                def block4():
+                    self._hspace_()
+                self._closure(block4)
+                self._token(',')
+
+                def block5():
+                    self._hspace_()
+                self._closure(block5)
+                self._expression_()
+                self.name_last_node('left')
+            self._error('no available options')
+        self.ast._define(
+            ['left', 'rest'],
+            []
+        )
+
+    @tatsumasu('Floor')
+    def _floor_operator_(self):  # noqa
+        self._FLOOR_()
+        self._token('(')
+
+        def block0():
+            self._hspace_()
+        self._closure(block0)
+        self._expression_()
+        self.name_last_node('exp')
+
+        def block2():
+            self._hspace_()
+        self._closure(block2)
+        self._token(')')
+        self.ast._define(
+            ['exp'],
             []
         )
 
@@ -4639,6 +4722,12 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
                 self._max_operator_()
                 self.name_last_node('sub')
             with self._option():
+                self._min_operator_()
+                self.name_last_node('sub')
+            with self._option():
+                self._floor_operator_()
+                self.name_last_node('sub')
+            with self._option():
                 self._number_matrix_()
                 self.name_last_node('nm')
             with self._option():
@@ -5281,7 +5370,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
 
     @tatsumasu()
     def _func_id_(self):  # noqa
-        self._token('!!!')
+        self._identifier_alone_()
 
     @tatsumasu('IdentifierAlone')
     def _identifier_alone_(self):  # noqa
@@ -5290,7 +5379,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         with self._group():
             with self._choice():
                 with self._option():
-                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*')
+                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*([A-Z0-9a-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*)*')
                     self.name_last_node('value')
                 with self._option():
                     self._token('`')
@@ -5304,7 +5393,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         )
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
+class grammare37f0136aa3ffaf149b351f6a4c948e9Semantics(object):
     def start(self, ast):  # noqa
         return ast
 
@@ -5357,6 +5446,9 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
         return ast
 
     def MAX(self, ast):  # noqa
+        return ast
+
+    def FLOOR(self, ast):  # noqa
         return ast
 
     def ARGMIN(self, ast):  # noqa
@@ -5528,6 +5620,15 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
         return ast
 
     def max_list(self, ast):  # noqa
+        return ast
+
+    def min_operator(self, ast):  # noqa
+        return ast
+
+    def min_list(self, ast):  # noqa
+        return ast
+
+    def floor_operator(self, ast):  # noqa
         return ast
 
     def multi_cond(self, ast):  # noqa
@@ -5974,7 +6075,7 @@ def main(filename, start=None, **kwargs):
     else:
         with open(filename) as f:
             text = f.read()
-    parser = grammarc21f969b5f03d33d43e04f8f136e7682Parser()
+    parser = grammare37f0136aa3ffaf149b351f6a4c948e9Parser()
     return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
@@ -5982,7 +6083,7 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, grammarc21f969b5f03d33d43e04f8f136e7682Parser, name='grammarc21f969b5f03d33d43e04f8f136e7682')
+    ast = generic_main(main, grammare37f0136aa3ffaf149b351f6a4c948e9Parser, name='grammare37f0136aa3ffaf149b351f6a4c948e9')
     print('AST:')
     print(ast)
     print()
@@ -6011,13 +6112,13 @@ class ModelBase(Node):
     pass
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics(ModelBuilderSemantics):
+class grammare37f0136aa3ffaf149b351f6a4c948e9ModelBuilderSemantics(ModelBuilderSemantics):
     def __init__(self, context=None, types=None):
         types = [
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics, self).__init__(context=context, types=types)
+        super(grammare37f0136aa3ffaf149b351f6a4c948e9ModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
 class Start(ModelBase):
@@ -6111,6 +6212,20 @@ class Max(ModelBase):
 class MaxList(ModelBase):
     left = None
     rest = None
+
+
+class Min(ModelBase):
+    left = None
+    rest = None
+
+
+class MinList(ModelBase):
+    left = None
+    rest = None
+
+
+class Floor(ModelBase):
+    exp = None
 
 
 class MultiCond(ModelBase):

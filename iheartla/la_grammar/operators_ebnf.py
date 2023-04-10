@@ -87,6 +87,21 @@ max_list::MaxList
     | {hspace} ','  {hspace} left:expression
     ;
 
+min_operator::Min
+    =
+    MIN '('  {hspace} left:expression rest:min_list {hspace} ')'
+    ;
+
+min_list::MinList
+    = {hspace} ','  {hspace} left:expression rest:min_list
+    | {hspace} ','  {hspace} left:expression
+    ;
+
+floor_operator::Floor
+    =
+    FLOOR '('  {hspace} exp:expression {hspace} ')'
+    ;
+
 multi_cond::MultiCond
     = {hspace} m_cond:multi_cond separator_with_space cond:atom_condition {hspace}
     | {hspace} cond:atom_condition {hspace}
