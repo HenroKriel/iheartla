@@ -1000,19 +1000,35 @@ class grammardefaultParser(Parser):
 
     @tatsumasu('Floor')
     def _floor_operator_(self):  # noqa
-        self._FLOOR_()
-        self._token('(')
+        with self._choice():
+            with self._option():
+                self._FLOOR_()
+                self._token('(')
 
-        def block0():
-            self._hspace_()
-        self._closure(block0)
-        self._expression_()
-        self.name_last_node('exp')
+                def block0():
+                    self._hspace_()
+                self._closure(block0)
+                self._expression_()
+                self.name_last_node('exp')
 
-        def block2():
-            self._hspace_()
-        self._closure(block2)
-        self._token(')')
+                def block2():
+                    self._hspace_()
+                self._closure(block2)
+                self._token(')')
+            with self._option():
+                self._token('⌊')
+
+                def block3():
+                    self._hspace_()
+                self._closure(block3)
+                self._expression_()
+                self.name_last_node('exp')
+
+                def block5():
+                    self._hspace_()
+                self._closure(block5)
+                self._token('⌋')
+            self._error('no available options')
         self.ast._define(
             ['exp'],
             []

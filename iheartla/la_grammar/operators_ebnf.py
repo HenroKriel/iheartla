@@ -100,6 +100,7 @@ min_list::MinList
 floor_operator::Floor
     =
     FLOOR '('  {hspace} exp:expression {hspace} ')'
+    | '⌊' {hspace} exp:expression {hspace} '⌋'
     ;
 
 multi_cond::MultiCond

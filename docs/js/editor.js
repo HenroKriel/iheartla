@@ -17,7 +17,7 @@ let unicode_dict = {'R': 'ℝ', 'Z': 'ℤ', 'x': '×', 'times': '×', 'inf': '�
                              'heart': '❤️', 'iheartla': 'I❤️LA',
                              'le':'≤', 'ge':'≥', 'ne': '≠', 'notin':'∉', 'div':'÷', 'nplus': '±',
                              'linner': '⟨', 'rinner':'⟩', 'num1': '𝟙',
-                             'hat': '\u0302', 'bar': '\u0304'
+                             'hat': '\u0302', 'bar': '\u0304', 'lfloor': '⌊', 'rfloor': '⌋'
                              }
 function checkBrowserVer(){
     var nVer = navigator.appVersion;
