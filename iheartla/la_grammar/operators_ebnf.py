@@ -6,7 +6,7 @@ operations
     | norm_operator
     | power_operator
     | inner_product_operator
-    | frobenius_product_operator
+   #| frobenius_product_operator
     | hadamard_product_operator
     | cross_product_operator
     | kronecker_product_operator

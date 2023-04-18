@@ -530,8 +530,6 @@ class grammardefaultParser(Parser):
             with self._option():
                 self._inner_product_operator_()
             with self._option():
-                self._frobenius_product_operator_()
-            with self._option():
                 self._hadamard_product_operator_()
             with self._option():
                 self._cross_product_operator_()
@@ -1356,7 +1354,6 @@ class grammardefaultParser(Parser):
         )
 
     @tatsumasu('FroProduct')
-    @nomemo
     def _frobenius_product_operator_(self):  # noqa
         self._factor_()
         self.name_last_node('left')

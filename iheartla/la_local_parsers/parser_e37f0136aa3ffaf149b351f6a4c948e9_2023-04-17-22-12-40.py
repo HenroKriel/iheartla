@@ -25,7 +25,7 @@ from tatsu.util import re, generic_main  # noqa
 KEYWORDS = {}  # type: ignore
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
+class grammare37f0136aa3ffaf149b351f6a4c948e9Buffer(Buffer):
     def __init__(
         self,
         text,
@@ -37,7 +37,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(grammarc21f969b5f03d33d43e04f8f136e7682Buffer, self).__init__(
+        super(grammare37f0136aa3ffaf149b351f6a4c948e9Buffer, self).__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -49,7 +49,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Buffer(Buffer):
         )
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
+class grammare37f0136aa3ffaf149b351f6a4c948e9Parser(Parser):
     def __init__(
         self,
         whitespace=re.compile('(?!.*)'),
@@ -61,12 +61,12 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=grammarc21f969b5f03d33d43e04f8f136e7682Buffer,
+        buffer_class=grammare37f0136aa3ffaf149b351f6a4c948e9Buffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(grammarc21f969b5f03d33d43e04f8f136e7682Parser, self).__init__(
+        super(grammare37f0136aa3ffaf149b351f6a4c948e9Parser, self).__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -525,8 +525,6 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
                 self._power_operator_()
             with self._option():
                 self._inner_product_operator_()
-            with self._option():
-                self._frobenius_product_operator_()
             with self._option():
                 self._hadamard_product_operator_()
             with self._option():
@@ -1352,7 +1350,6 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         )
 
     @tatsumasu('FroProduct')
-    @nomemo
     def _frobenius_product_operator_(self):  # noqa
         self._factor_()
         self.name_last_node('left')
@@ -5386,7 +5383,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
 
     @tatsumasu()
     def _func_id_(self):  # noqa
-        self._token('!!!')
+        self._identifier_alone_()
 
     @tatsumasu('IdentifierAlone')
     def _identifier_alone_(self):  # noqa
@@ -5395,7 +5392,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         with self._group():
             with self._choice():
                 with self._option():
-                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*')
+                    self._pattern('[A-Za-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*([A-Z0-9a-z\\p{Ll}\\p{Lu}\\p{Lo}]\\p{M}*)*')
                     self.name_last_node('value')
                 with self._option():
                     self._token('`')
@@ -5409,7 +5406,7 @@ class grammarc21f969b5f03d33d43e04f8f136e7682Parser(Parser):
         )
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682Semantics(object):
+class grammare37f0136aa3ffaf149b351f6a4c948e9Semantics(object):
     def start(self, ast):  # noqa
         return ast
 
@@ -6091,7 +6088,7 @@ def main(filename, start=None, **kwargs):
     else:
         with open(filename) as f:
             text = f.read()
-    parser = grammarc21f969b5f03d33d43e04f8f136e7682Parser()
+    parser = grammare37f0136aa3ffaf149b351f6a4c948e9Parser()
     return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
@@ -6099,7 +6096,7 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, grammarc21f969b5f03d33d43e04f8f136e7682Parser, name='grammarc21f969b5f03d33d43e04f8f136e7682')
+    ast = generic_main(main, grammare37f0136aa3ffaf149b351f6a4c948e9Parser, name='grammare37f0136aa3ffaf149b351f6a4c948e9')
     print('AST:')
     print(ast)
     print()
@@ -6128,13 +6125,13 @@ class ModelBase(Node):
     pass
 
 
-class grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics(ModelBuilderSemantics):
+class grammare37f0136aa3ffaf149b351f6a4c948e9ModelBuilderSemantics(ModelBuilderSemantics):
     def __init__(self, context=None, types=None):
         types = [
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(grammarc21f969b5f03d33d43e04f8f136e7682ModelBuilderSemantics, self).__init__(context=context, types=types)
+        super(grammare37f0136aa3ffaf149b351f6a4c948e9ModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
 class Start(ModelBase):
