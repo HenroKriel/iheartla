@@ -34,7 +34,7 @@ vector_type::VectorType
     | type:/[ℝℤ]/ {hspace} '^' {hspace} '(' {hspace} id1:dimension {hspace}')'
     | type:/[ℝℤ]/ {hspace} '^' {hspace} id1:dimension
     | type:/[ℝℤ]/ id1:sup_integer
-    | bounds:('[' {hspace} left:expression {hspace} ',' {hspace} right:expression {hspace} ']' rest:{{hspace} 'x' {hspace} '[' {hspace} left:expression {hspace} ',' {hspace} right:expression {hspace} ']'}+
+    | bounds:('[' {hspace} left:expression {hspace} ',' {hspace} right:expression {hspace} ']' rest:{{hspace} ('x' | '×') {hspace} '[' {hspace} left:expression {hspace} ',' {hspace} right:expression {hspace} ']'}+
       default:{{hspace} 'default' {hspace} '=' {hspace} vec:vector})
     #^ dimension??
     ;

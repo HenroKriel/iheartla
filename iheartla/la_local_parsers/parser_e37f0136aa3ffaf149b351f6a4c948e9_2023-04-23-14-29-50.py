@@ -3967,55 +3967,61 @@ class grammare37f0136aa3ffaf149b351f6a4c948e9Parser(Parser):
                         def block25():
                             self._hspace_()
                         self._closure(block25)
-                        self._token('x')
-
-                        def block26():
-                            self._hspace_()
-                        self._closure(block26)
-                        self._token('[')
+                        with self._group():
+                            with self._choice():
+                                with self._option():
+                                    self._token('x')
+                                with self._option():
+                                    self._token('×')
+                                self._error('no available options')
 
                         def block27():
                             self._hspace_()
                         self._closure(block27)
+                        self._token('[')
+
+                        def block28():
+                            self._hspace_()
+                        self._closure(block28)
                         self._expression_()
                         self.name_last_node('left')
-
-                        def block29():
-                            self._hspace_()
-                        self._closure(block29)
-                        self._token(',')
 
                         def block30():
                             self._hspace_()
                         self._closure(block30)
+                        self._token(',')
+
+                        def block31():
+                            self._hspace_()
+                        self._closure(block31)
                         self._expression_()
                         self.name_last_node('right')
 
-                        def block32():
+                        def block33():
                             self._hspace_()
-                        self._closure(block32)
+                        self._closure(block33)
                         self._token(']')
                     self._positive_closure(block24)
                     self.name_last_node('rest')
 
-                    def block34():
-
-                        def block35():
-                            self._hspace_()
-                        self._closure(block35)
-                        self._token('default')
+                    def block35():
 
                         def block36():
                             self._hspace_()
                         self._closure(block36)
-                        self._token('=')
+                        self._token('default')
 
                         def block37():
                             self._hspace_()
                         self._closure(block37)
+                        self._token('=')
+
+                        def block38():
+                            self._hspace_()
+                        self._closure(block38)
                         self._vector_()
                         self.name_last_node('vec')
-                    self._closure(block34)
+                    self._closure(block35)
                     self.name_last_node('default')
                 self.name_last_node('bounds')
             self._error('no available options')
